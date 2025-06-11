@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Zap } from 'lucide-react';
+import { Menu, X, Zap, LogOut, User } from 'lucide-react';
+import { signOut } from '../lib/supabase';
+import { User as SupabaseUser } from '@supabase/supabase-js';
 
-export const Navigation: React.FC = () => {
+interface NavigationProps {
+  user: SupabaseUser | null;
+  onAuthClick: () => void;
+}
+
+export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [scrolled, setScrolled] = useState(false);
@@ -43,6 +50,14 @@ export const Navigation: React.FC = () => {
     setIsMenuOpen(false);
   };
 
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
   return (
     <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${
       scrolled ? 'nav-blur shadow-lg' : 'bg-transparent'
@@ -76,11 +91,29 @@ export const Navigation: React.FC = () => {
             ))}
           </div>
 
-          {/* CTA Button */}
-          <div className="hidden md:block">
-            <button className="btn-primary">
-              Get Started
-            </button>
+          {/* Auth Section */}
+          <div className="hidden md:flex items-center space-x-4">
+            {user ? (
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2 px-3 py-2 bg-neutral-100 rounded-full">
+                  <User className="w-4 h-4 text-neutral-600" />
+                  <span className="text-sm font-medium text-neutral-700">
+                    {user.user_metadata?.full_name || user.email?.split('@')[0]}
+                  </span>
+                </div>
+                <button
+                  onClick={handleSignOut}
+                  className="p-2 text-neutral-600 hover:text-neutral-800 hover:bg-neutral-100 rounded-full transition-colors"
+                  title="Sign out"
+                >
+                  <LogOut className="w-5 h-5" />
+                </button>
+              </div>
+            ) : (
+              <button onClick={onAuthClick} className="btn-primary">
+                Get Started
+              </button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -110,9 +143,23 @@ export const Navigation: React.FC = () => {
                 </button>
               ))}
               <div className="pt-4 border-t border-neutral-200">
-                <button className="btn-primary w-full justify-center">
-                  Get Started
-                </button>
+                {user ? (
+                  <div className="space-y-2">
+                    <div className="px-4 py-2 text-sm text-neutral-600">
+                      Signed in as {user.user_metadata?.full_name || user.email?.split('@')[0]}
+                    </div>
+                    <button
+                      onClick={handleSignOut}
+                      className="btn-secondary w-full justify-center"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                ) : (
+                  <button onClick={onAuthClick} className="btn-primary w-full justify-center">
+                    Get Started
+                  </button>
+                )}
               </div>
             </div>
           </div>

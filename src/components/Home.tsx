@@ -1,7 +1,11 @@
 import React from 'react';
 import { Calendar, Users, Mic, ArrowRight, Sparkles, Globe, Rocket } from 'lucide-react';
 
-export const Home: React.FC = () => {
+interface HomeProps {
+  onAuthClick: () => void;
+}
+
+export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
   const stats = [
     { icon: Calendar, value: '50+', label: 'Events', color: 'from-orange-500 to-red-500' },
     { icon: Users, value: '1500+', label: 'Attendees', color: 'from-blue-500 to-indigo-500' },
@@ -25,6 +29,20 @@ export const Home: React.FC = () => {
       description: 'Discover unofficial gatherings and connect authentically'
     }
   ];
+
+  const scrollToSchedule = () => {
+    const element = document.getElementById('schedule');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const scrollToCommunity = () => {
+    const element = document.getElementById('community');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   return (
     <section id="home" className="min-h-screen flex flex-col justify-center px-6 py-20 relative overflow-hidden">
@@ -54,11 +72,11 @@ export const Home: React.FC = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <button className="btn-primary text-lg px-8 py-4">
+            <button onClick={scrollToSchedule} className="btn-primary text-lg px-8 py-4">
               Explore Events
               <ArrowRight className="w-5 h-5" />
             </button>
-            <button className="btn-secondary text-lg px-8 py-4">
+            <button onClick={onAuthClick} className="btn-secondary text-lg px-8 py-4">
               Join Community
             </button>
           </div>

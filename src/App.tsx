@@ -5,16 +5,21 @@ import { Schedule } from './components/Schedule';
 import { Networking } from './components/Networking';
 import { Community } from './components/Community';
 import { Approach } from './components/Approach';
+import { AuthModal } from './components/Auth/AuthModal';
+import { useAuth } from './hooks/useAuth';
+import { useModal } from './hooks/useModal';
 
 function App() {
   const [isLoaded, setIsLoaded] = useState(false);
+  const { user, loading } = useAuth();
+  const { isOpen: isAuthModalOpen, openModal: openAuthModal, closeModal: closeAuthModal } = useModal();
 
   useEffect(() => {
     // Simulate app loading with a more sophisticated animation
     setTimeout(() => setIsLoaded(true), 800);
   }, []);
 
-  if (!isLoaded) {
+  if (!isLoaded || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-neutral-50 to-white">
         <div className="text-center">
@@ -35,9 +40,9 @@ function App() {
 
   return (
     <div className="App">
-      <Navigation />
+      <Navigation user={user} onAuthClick={openAuthModal} />
       <main>
-        <Home />
+        <Home onAuthClick={openAuthModal} />
         <Schedule />
         <Networking />
         <Community />
@@ -99,6 +104,8 @@ function App() {
           </div>
         </div>
       </footer>
+
+      <AuthModal isOpen={isAuthModalOpen} onClose={closeAuthModal} />
     </div>
   );
 }

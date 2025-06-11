@@ -1,40 +1,115 @@
-import React, { useState } from 'react';
-import { Plus, MapPin, Clock, User, MessageSquare, Heart, Share2, Coffee } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Plus, MapPin, Clock, User, MessageSquare, Heart, Share2, Coffee, Users } from 'lucide-react';
 import { Modal } from './ui/Modal';
 import { useModal } from '../hooks/useModal';
-import { Gathering } from '../types';
-import { initialGatheringsData } from '../data/sampleData';
+import { useAuth } from '../hooks/useAuth';
+import { getGatherings, createGathering, joinGathering, leaveGathering, subscribeToTable } from '../lib/supabase';
+
+interface Gathering {
+  id: string;
+  organizer_id: string;
+  name: string;
+  description: string;
+  location: string;
+  scheduled_time: string;
+  max_attendees: number | null;
+  tags: string[] | null;
+  attendee_count: number;
+  created_at: string;
+  profiles?: {
+    full_name: string | null;
+    company: string | null;
+  };
+}
 
 export const Community: React.FC = () => {
-  const [gatherings, setGatherings] = useState<Gathering[]>(initialGatheringsData);
+  const { user } = useAuth();
+  const [gatherings, setGatherings] = useState<Gathering[]>([]);
+  const [loading, setLoading] = useState(true);
   const [gatheringForm, setGatheringForm] = useState({
     name: '',
     location: '',
-    time: '',
-    description: ''
+    scheduled_time: '',
+    description: '',
+    max_attendees: ''
   });
   
   const { isOpen: isGatheringModalOpen, openModal: openGatheringModal, closeModal: closeGatheringModal } = useModal();
 
-  const handleGatheringSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    loadGatherings();
     
-    const newGathering: Gathering = {
-      id: Date.now().toString(),
-      name: gatheringForm.name,
-      location: gatheringForm.location,
-      time: gatheringForm.time,
-      description: gatheringForm.description,
-      timestamp: new Date(),
-      organizer: 'You'
-    };
+    // Subscribe to real-time updates
+    const subscription = subscribeToTable('gatherings', (payload) => {
+      if (payload.eventType === 'INSERT') {
+        setGatherings(prev => [payload.new, ...prev]);
+      } else if (payload.eventType === 'UPDATE') {
+        setGatherings(prev => prev.map(gathering => 
+          gathering.id === payload.new.id ? payload.new : gathering
+        ));
+      } else if (payload.eventType === 'DELETE') {
+        setGatherings(prev => prev.filter(gathering => gathering.id !== payload.old.id));
+      }
+    });
 
-    setGatherings([newGathering, ...gatherings]);
-    setGatheringForm({ name: '', location: '', time: '', description: '' });
-    closeGatheringModal();
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const loadGatherings = async () => {
+    try {
+      const { data, error } = await getGatherings();
+      if (error) throw error;
+      setGatherings(data || []);
+    } catch (error) {
+      console.error('Error loading gatherings:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const formatTime = (date: Date) => {
+  const handleGatheringSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    
+    try {
+      const { data, error } = await createGathering({
+        organizer_id: user.id,
+        name: gatheringForm.name,
+        location: gatheringForm.location,
+        scheduled_time: new Date(gatheringForm.scheduled_time).toISOString(),
+        description: gatheringForm.description,
+        max_attendees: gatheringForm.max_attendees ? parseInt(gatheringForm.max_attendees) : null
+      });
+      
+      if (error) throw error;
+      
+      setGatheringForm({
+        name: '',
+        location: '',
+        scheduled_time: '',
+        description: '',
+        max_attendees: ''
+      });
+      closeGatheringModal();
+    } catch (error) {
+      console.error('Error creating gathering:', error);
+    }
+  };
+
+  const handleJoinGathering = async (gatheringId: string) => {
+    if (!user) return;
+    
+    try {
+      await joinGathering(user.id, gatheringId);
+    } catch (error) {
+      console.error('Error joining gathering:', error);
+    }
+  };
+
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
@@ -43,6 +118,18 @@ export const Community: React.FC = () => {
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffHours < 24) return `${diffHours}h ago`;
     return date.toLocaleDateString();
+  };
+
+  const formatScheduledTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
   };
 
   return (
@@ -94,69 +181,92 @@ export const Community: React.FC = () => {
                 Join spontaneous meetups and community-organized events
               </p>
             </div>
-            <button onClick={openGatheringModal} className="btn-primary">
-              <Plus className="w-5 h-5" />
-              Create Gathering
-            </button>
+            {user && (
+              <button onClick={openGatheringModal} className="btn-primary">
+                <Plus className="w-5 h-5" />
+                Create Gathering
+              </button>
+            )}
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {gatherings.map((gathering, index) => (
-              <div 
-                key={gathering.id} 
-                className="card-floating p-6 interactive animate-scale-in"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <h4 className="font-display font-semibold text-neutral-800 text-lg leading-tight flex-1">
-                    {gathering.name}
-                  </h4>
-                  <span className="text-xs text-neutral-500 ml-4 whitespace-nowrap">
-                    {formatTime(gathering.timestamp)}
-                  </span>
-                </div>
-                
-                <div className="space-y-3 mb-4">
-                  <div className="flex items-center text-neutral-600 text-sm">
-                    <MapPin className="w-4 h-4 mr-3 text-neutral-400" />
-                    {gathering.location}
-                  </div>
-                  <div className="flex items-center text-neutral-600 text-sm">
-                    <Clock className="w-4 h-4 mr-3 text-neutral-400" />
-                    {gathering.time}
-                  </div>
-                  <div className="flex items-center text-neutral-600 text-sm">
-                    <User className="w-4 h-4 mr-3 text-neutral-400" />
-                    Organized by {gathering.organizer}
-                  </div>
-                </div>
-                
-                <p className="text-neutral-600 leading-relaxed mb-6 text-sm">
-                  {gathering.description}
-                </p>
-                
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-4">
-                    <button className="flex items-center gap-1 text-neutral-500 hover:text-red-500 transition-colors">
-                      <Heart className="w-4 h-4" />
-                      <span className="text-xs">12</span>
-                    </button>
-                    <button className="flex items-center gap-1 text-neutral-500 hover:text-blue-500 transition-colors">
-                      <MessageSquare className="w-4 h-4" />
-                      <span className="text-xs">5</span>
-                    </button>
-                    <button className="text-neutral-500 hover:text-green-500 transition-colors">
-                      <Share2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-                
-                <button className="btn-primary w-full justify-center">
-                  Join Gathering
-                </button>
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="w-12 h-12 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+                <Coffee className="w-6 h-6 text-neutral-400" />
               </div>
-            ))}
-          </div>
+              <p className="text-neutral-600">Loading gatherings...</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {gatherings.map((gathering, index) => (
+                <div 
+                  key={gathering.id} 
+                  className="card-floating p-6 interactive animate-scale-in"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <h4 className="font-display font-semibold text-neutral-800 text-lg leading-tight flex-1">
+                      {gathering.name}
+                    </h4>
+                    <span className="text-xs text-neutral-500 ml-4 whitespace-nowrap">
+                      {formatTime(gathering.created_at)}
+                    </span>
+                  </div>
+                  
+                  <div className="space-y-3 mb-4">
+                    <div className="flex items-center text-neutral-600 text-sm">
+                      <MapPin className="w-4 h-4 mr-3 text-neutral-400" />
+                      {gathering.location}
+                    </div>
+                    <div className="flex items-center text-neutral-600 text-sm">
+                      <Clock className="w-4 h-4 mr-3 text-neutral-400" />
+                      {formatScheduledTime(gathering.scheduled_time)}
+                    </div>
+                    <div className="flex items-center text-neutral-600 text-sm">
+                      <User className="w-4 h-4 mr-3 text-neutral-400" />
+                      Organized by {gathering.profiles?.full_name || 'Anonymous'}
+                      {gathering.profiles?.company && (
+                        <span className="ml-1">• {gathering.profiles.company}</span>
+                      )}
+                    </div>
+                    <div className="flex items-center text-neutral-600 text-sm">
+                      <Users className="w-4 h-4 mr-3 text-neutral-400" />
+                      {gathering.attendee_count} attending
+                      {gathering.max_attendees && ` / ${gathering.max_attendees} max`}
+                    </div>
+                  </div>
+                  
+                  <p className="text-neutral-600 leading-relaxed mb-6 text-sm">
+                    {gathering.description}
+                  </p>
+                  
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-4">
+                      <button className="flex items-center gap-1 text-neutral-500 hover:text-red-500 transition-colors">
+                        <Heart className="w-4 h-4" />
+                        <span className="text-xs">12</span>
+                      </button>
+                      <button className="flex items-center gap-1 text-neutral-500 hover:text-blue-500 transition-colors">
+                        <MessageSquare className="w-4 h-4" />
+                        <span className="text-xs">5</span>
+                      </button>
+                      <button className="text-neutral-500 hover:text-green-500 transition-colors">
+                        <Share2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <button 
+                    onClick={() => handleJoinGathering(gathering.id)}
+                    className="btn-primary w-full justify-center"
+                    disabled={!user}
+                  >
+                    Join Gathering
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <Modal isOpen={isGatheringModalOpen} onClose={closeGatheringModal} title="Create a Gathering">
@@ -189,18 +299,33 @@ export const Community: React.FC = () => {
               />
             </div>
             
-            <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-2">
-                Time
-              </label>
-              <input
-                type="text"
-                placeholder="e.g., 8:00 PM Tonight"
-                value={gatheringForm.time}
-                onChange={(e) => setGatheringForm({...gatheringForm, time: e.target.value})}
-                className="input-field"
-                required
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                  Date & Time
+                </label>
+                <input
+                  type="datetime-local"
+                  value={gatheringForm.scheduled_time}
+                  onChange={(e) => setGatheringForm({...gatheringForm, scheduled_time: e.target.value})}
+                  className="input-field"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                  Max Attendees (Optional)
+                </label>
+                <input
+                  type="number"
+                  placeholder="e.g., 10"
+                  value={gatheringForm.max_attendees}
+                  onChange={(e) => setGatheringForm({...gatheringForm, max_attendees: e.target.value})}
+                  className="input-field"
+                  min="1"
+                />
+              </div>
             </div>
             
             <div>
