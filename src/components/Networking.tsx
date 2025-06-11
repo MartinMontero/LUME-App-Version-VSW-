@@ -1,0 +1,229 @@
+import React, { useState } from 'react';
+import { Radio, Search, Coffee, Plus, MessageCircle, Users, Zap, ArrowRight } from 'lucide-react';
+import { Modal } from './ui/Modal';
+import { useModal } from '../hooks/useModal';
+import { Pitch } from '../types';
+import { initialPitchData } from '../data/sampleData';
+
+export const Networking: React.FC = () => {
+  const [pitches, setPitches] = useState<Pitch[]>(initialPitchData);
+  const [pitchForm, setPitchForm] = useState({
+    title: '',
+    description: '',
+    contact: ''
+  });
+  
+  const { isOpen: isPitchModalOpen, openModal: openPitchModal, closeModal: closePitchModal } = useModal();
+
+  const handlePitchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const newPitch: Pitch = {
+      id: Date.now().toString(),
+      title: pitchForm.title,
+      description: pitchForm.description,
+      contact: pitchForm.contact,
+      timestamp: new Date(),
+      author: 'You'
+    };
+
+    setPitches([newPitch, ...pitches]);
+    setPitchForm({ title: '', description: '', contact: '' });
+    closePitchModal();
+  };
+
+  const formatTime = (date: Date) => {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    return date.toLocaleDateString();
+  };
+
+  const networkingSteps = [
+    {
+      icon: Radio,
+      title: 'Broadcast Your Interest',
+      description: 'Share what you\'re looking for - co-founders, advisors, customers, or great conversations.',
+      color: 'from-orange-500 to-red-500'
+    },
+    {
+      icon: Search,
+      title: 'Discover & Connect',
+      description: 'AI matches you with people nearby who have complementary interests or overlapping needs.',
+      color: 'from-blue-500 to-indigo-500'
+    },
+    {
+      icon: Coffee,
+      title: 'Spontaneous Meetups',
+      description: 'Turn digital signals into real conversations over coffee or during session breaks.',
+      color: 'from-green-500 to-emerald-500'
+    }
+  ];
+
+  return (
+    <section id="networking" className="py-24 px-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-16 animate-slide-up">
+          <div className="inline-flex items-center px-4 py-2 bg-purple-100 rounded-full text-purple-600 text-sm font-medium mb-6">
+            <Zap className="w-4 h-4 mr-2" />
+            Smart Networking
+          </div>
+          <h2 className="text-4xl md:text-5xl font-display font-bold text-neutral-800 mb-6">
+            The Serendipity
+            <span className="block text-gradient">Multiplier</span>
+          </h2>
+          <p className="text-xl text-neutral-600 max-w-3xl mx-auto leading-relaxed">
+            Leverage the power of weak ties and serendipitous encounters. Broadcasting your interests 
+            and availability creates unexpected opportunities that traditional networking can't match.
+          </p>
+        </div>
+
+        {/* How It Works */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-20">
+          {networkingSteps.map((step, index) => {
+            const Icon = step.icon;
+            return (
+              <div key={index} className="text-center animate-slide-up" style={{ animationDelay: `${index * 0.1}s` }}>
+                <div className={`w-20 h-20 bg-gradient-to-br ${step.color} rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl`}>
+                  <Icon className="w-10 h-10 text-white" />
+                </div>
+                <h3 className="text-2xl font-display font-semibold text-neutral-800 mb-4">
+                  {step.title}
+                </h3>
+                <p className="text-neutral-600 leading-relaxed">
+                  {step.description}
+                </p>
+                {index < networkingSteps.length - 1 && (
+                  <div className="hidden lg:block absolute top-10 right-0 transform translate-x-1/2">
+                    <ArrowRight className="w-6 h-6 text-neutral-300" />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Pitch Board */}
+        <div className="card-elevated p-8 status-live animate-slide-up" style={{ animationDelay: '0.4s' }}>
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h3 className="text-2xl font-display font-semibold text-neutral-800 mb-2">
+                Pitch & Connect Board
+              </h3>
+              <p className="text-neutral-600">
+                Share your startup pitch or find your next co-founder
+              </p>
+            </div>
+            <button onClick={openPitchModal} className="btn-primary">
+              <Plus className="w-5 h-5" />
+              Add Your Pitch
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {pitches.map((pitch, index) => (
+              <div 
+                key={pitch.id} 
+                className="card-floating p-6 interactive animate-scale-in"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <h4 className="font-display font-semibold text-neutral-800 text-lg leading-tight flex-1">
+                    {pitch.title}
+                  </h4>
+                  <span className="text-xs text-neutral-500 ml-4 whitespace-nowrap">
+                    {formatTime(pitch.timestamp)}
+                  </span>
+                </div>
+                
+                <p className="text-neutral-600 leading-relaxed mb-6 text-sm">
+                  {pitch.description}
+                </p>
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center text-sm text-neutral-500">
+                    <Users className="w-4 h-4 mr-2" />
+                    by {pitch.author}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button className="btn-ghost p-2">
+                      <MessageCircle className="w-4 h-4" />
+                    </button>
+                    <button className="btn-secondary text-sm px-3 py-1">
+                      Connect
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="mt-4 pt-4 border-t border-neutral-100">
+                  <div className="text-xs text-orange-600 font-medium">
+                    {pitch.contact}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <Modal isOpen={isPitchModalOpen} onClose={closePitchModal} title="Share Your Pitch">
+          <form onSubmit={handlePitchSubmit} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-2">
+                Pitch Title
+              </label>
+              <input
+                type="text"
+                placeholder="e.g., EcoTrack - Carbon Footprint App"
+                value={pitchForm.title}
+                onChange={(e) => setPitchForm({...pitchForm, title: e.target.value})}
+                className="input-field"
+                required
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-2">
+                Description
+              </label>
+              <textarea
+                placeholder="Describe your startup, what problem you're solving, and what you're looking for..."
+                value={pitchForm.description}
+                onChange={(e) => setPitchForm({...pitchForm, description: e.target.value})}
+                className="input-field h-32 resize-none"
+                required
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-2">
+                Contact Information
+              </label>
+              <input
+                type="text"
+                placeholder="Email, LinkedIn, or preferred contact method"
+                value={pitchForm.contact}
+                onChange={(e) => setPitchForm({...pitchForm, contact: e.target.value})}
+                className="input-field"
+                required
+              />
+            </div>
+            
+            <div className="flex gap-4 pt-4">
+              <button type="button" onClick={closePitchModal} className="btn-secondary flex-1">
+                Cancel
+              </button>
+              <button type="submit" className="btn-primary flex-1">
+                Share Pitch
+              </button>
+            </div>
+          </form>
+        </Modal>
+      </div>
+    </section>
+  );
+};
