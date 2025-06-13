@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Radio, Search, Coffee, Plus, MessageCircle, Users, Zap, ArrowRight, Heart } from 'lucide-react';
+import { Radio, Search, Coffee, Plus, MessageCircle, Users, Zap, ArrowRight, Heart, Eye, ThumbsUp, Share2 } from 'lucide-react';
 import { Modal } from './ui/Modal';
 import { useModal } from '../hooks/useModal';
 import { useAuth } from '../hooks/useAuth';
 import { getPitches, createPitch, likePitch, unlikePitch, subscribeToTable } from '../lib/supabase';
+import { NetworkingSignals } from './NetworkingSignals';
 
 interface Pitch {
   id: string;
@@ -28,6 +29,8 @@ export const Networking: React.FC = () => {
   const { user } = useAuth();
   const [pitches, setPitches] = useState<Pitch[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedPitch, setSelectedPitch] = useState<Pitch | null>(null);
+  const [likedPitches, setLikedPitches] = useState<Set<string>>(new Set());
   const [pitchForm, setPitchForm] = useState({
     title: '',
     description: '',
@@ -38,6 +41,7 @@ export const Networking: React.FC = () => {
   });
   
   const { isOpen: isPitchModalOpen, openModal: openPitchModal, closeModal: closePitchModal } = useModal();
+  const { isOpen: isPitchDetailOpen, openModal: openPitchDetail, closeModal: closePitchDetail } = useModal();
 
   useEffect(() => {
     loadPitches();
@@ -102,10 +106,27 @@ export const Networking: React.FC = () => {
     if (!user) return;
     
     try {
-      await likePitch(user.id, pitchId);
+      const isLiked = likedPitches.has(pitchId);
+      
+      if (isLiked) {
+        await unlikePitch(user.id, pitchId);
+        setLikedPitches(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(pitchId);
+          return newSet;
+        });
+      } else {
+        await likePitch(user.id, pitchId);
+        setLikedPitches(prev => new Set(prev).add(pitchId));
+      }
     } catch (error) {
-      console.error('Error liking pitch:', error);
+      console.error('Error toggling like:', error);
     }
+  };
+
+  const openPitchDetailModal = (pitch: Pitch) => {
+    setSelectedPitch(pitch);
+    openPitchDetail();
   };
 
   const formatTime = (dateString: string) => {
@@ -114,10 +135,12 @@ export const Networking: React.FC = () => {
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
     
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    return date.toLocaleDateString();
+    if (diffDays > 0) return `${diffDays}d ago`;
+    if (diffHours > 0) return `${diffHours}h ago`;
+    if (diffMins > 0) return `${diffMins}m ago`;
+    return 'Just now';
   };
 
   const networkingSteps = [
@@ -185,6 +208,11 @@ export const Networking: React.FC = () => {
           })}
         </div>
 
+        {/* Live Networking Signals */}
+        <div className="card-elevated p-8 status-live animate-slide-up mb-12" style={{ animationDelay: '0.3s' }}>
+          <NetworkingSignals />
+        </div>
+
         {/* Pitch Board */}
         <div className="card-elevated p-8 status-live animate-slide-up" style={{ animationDelay: '0.4s' }}>
           <div className="flex items-center justify-between mb-8">
@@ -216,8 +244,9 @@ export const Networking: React.FC = () => {
               {pitches.map((pitch, index) => (
                 <div 
                   key={pitch.id} 
-                  className="card-floating p-6 interactive animate-scale-in"
+                  className="card-floating p-6 interactive animate-scale-in cursor-pointer"
                   style={{ animationDelay: `${index * 0.1}s` }}
+                  onClick={() => openPitchDetailModal(pitch)}
                 >
                   <div className="flex items-start justify-between mb-4">
                     <h4 className="font-display font-semibold text-neutral-800 text-lg leading-tight flex-1">
@@ -228,17 +257,22 @@ export const Networking: React.FC = () => {
                     </span>
                   </div>
                   
-                  <p className="text-neutral-600 leading-relaxed mb-4 text-sm">
+                  <p className="text-neutral-600 leading-relaxed mb-4 text-sm line-clamp-3">
                     {pitch.description}
                   </p>
                   
-                  {pitch.stage && (
-                    <div className="mb-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    {pitch.stage && (
                       <span className="inline-block px-2 py-1 bg-blue-100 text-blue-600 text-xs font-medium rounded-full">
                         {pitch.stage}
                       </span>
-                    </div>
-                  )}
+                    )}
+                    {pitch.industry && (
+                      <span className="inline-block px-2 py-1 bg-green-100 text-green-600 text-xs font-medium rounded-full">
+                        {pitch.industry}
+                      </span>
+                    )}
+                  </div>
                   
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center text-sm text-neutral-500">
@@ -251,29 +285,37 @@ export const Networking: React.FC = () => {
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-4">
                       <button 
-                        onClick={() => handleLikePitch(pitch.id)}
-                        className="flex items-center gap-1 text-neutral-500 hover:text-red-500 transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleLikePitch(pitch.id);
+                        }}
+                        className={`flex items-center gap-1 transition-colors ${
+                          likedPitches.has(pitch.id) 
+                            ? 'text-red-500' 
+                            : 'text-neutral-500 hover:text-red-500'
+                        }`}
                         disabled={!user}
                       >
-                        <Heart className="w-4 h-4" />
+                        <Heart className={`w-4 h-4 ${likedPitches.has(pitch.id) ? 'fill-current' : ''}`} />
                         <span className="text-xs">{pitch.likes_count}</span>
                       </button>
                       <button className="flex items-center gap-1 text-neutral-500 hover:text-blue-500 transition-colors">
                         <MessageCircle className="w-4 h-4" />
                         <span className="text-xs">{pitch.comments_count}</span>
                       </button>
+                      <button className="flex items-center gap-1 text-neutral-500 hover:text-green-500 transition-colors">
+                        <Eye className="w-4 h-4" />
+                        <span className="text-xs">View</span>
+                      </button>
                     </div>
-                    <button className="btn-secondary text-sm px-3 py-1">
-                      Connect
+                    <button 
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-neutral-500 hover:text-orange-500 transition-colors"
+                    >
+                      <Share2 className="w-4 h-4" />
                     </button>
-                  </div>
-                  
-                  <div className="mt-4 pt-4 border-t border-neutral-100">
-                    <div className="text-xs text-orange-600 font-medium">
-                      {pitch.contact_info}
-                    </div>
                   </div>
                 </div>
               ))}
@@ -281,6 +323,7 @@ export const Networking: React.FC = () => {
           )}
         </div>
 
+        {/* Create Pitch Modal */}
         <Modal isOpen={isPitchModalOpen} onClose={closePitchModal} title="Share Your Pitch">
           <form onSubmit={handlePitchSubmit} className="space-y-6">
             <div>
@@ -365,6 +408,79 @@ export const Networking: React.FC = () => {
               </button>
             </div>
           </form>
+        </Modal>
+
+        {/* Pitch Detail Modal */}
+        <Modal 
+          isOpen={isPitchDetailOpen} 
+          onClose={closePitchDetail} 
+          title={selectedPitch?.title || 'Pitch Details'}
+        >
+          {selectedPitch && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-3 mb-4">
+                {selectedPitch.stage && (
+                  <span className="inline-block px-3 py-1 bg-blue-100 text-blue-600 text-sm font-medium rounded-full">
+                    {selectedPitch.stage}
+                  </span>
+                )}
+                {selectedPitch.industry && (
+                  <span className="inline-block px-3 py-1 bg-green-100 text-green-600 text-sm font-medium rounded-full">
+                    {selectedPitch.industry}
+                  </span>
+                )}
+              </div>
+              
+              <div>
+                <h4 className="font-medium text-neutral-800 mb-2">Description</h4>
+                <p className="text-neutral-600 leading-relaxed">
+                  {selectedPitch.description}
+                </p>
+              </div>
+              
+              <div>
+                <h4 className="font-medium text-neutral-800 mb-2">Contact</h4>
+                <p className="text-orange-600 font-medium">
+                  {selectedPitch.contact_info}
+                </p>
+              </div>
+              
+              <div>
+                <h4 className="font-medium text-neutral-800 mb-2">Founder</h4>
+                <p className="text-neutral-600">
+                  {selectedPitch.profiles?.full_name || 'Anonymous'}
+                  {selectedPitch.profiles?.company && (
+                    <span className="text-neutral-400"> • {selectedPitch.profiles.company}</span>
+                  )}
+                </p>
+              </div>
+              
+              <div className="flex items-center justify-between pt-4 border-t border-neutral-200">
+                <div className="flex items-center gap-6">
+                  <button 
+                    onClick={() => handleLikePitch(selectedPitch.id)}
+                    className={`flex items-center gap-2 transition-colors ${
+                      likedPitches.has(selectedPitch.id) 
+                        ? 'text-red-500' 
+                        : 'text-neutral-500 hover:text-red-500'
+                    }`}
+                    disabled={!user}
+                  >
+                    <Heart className={`w-5 h-5 ${likedPitches.has(selectedPitch.id) ? 'fill-current' : ''}`} />
+                    <span>{selectedPitch.likes_count} likes</span>
+                  </button>
+                  <div className="flex items-center gap-2 text-neutral-500">
+                    <MessageCircle className="w-5 h-5" />
+                    <span>{selectedPitch.comments_count} comments</span>
+                  </div>
+                </div>
+                
+                <button className="btn-primary">
+                  Connect
+                </button>
+              </div>
+            </div>
+          )}
         </Modal>
       </div>
     </section>

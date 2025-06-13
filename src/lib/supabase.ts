@@ -206,6 +206,76 @@ export const leaveGathering = async (userId: string, gatheringId: string) => {
   return { error };
 };
 
+// Networking Signals helpers
+export const getNetworkingSignals = async () => {
+  const { data, error } = await supabase
+    .from('networking_signals')
+    .select(`
+      *,
+      profiles:user_id (
+        full_name,
+        company
+      )
+    `)
+    .eq('is_active', true)
+    .gt('expires_at', new Date().toISOString())
+    .order('created_at', { ascending: false });
+  return { data, error };
+};
+
+export const createNetworkingSignal = async (signalData: any) => {
+  const { data, error } = await supabase
+    .from('networking_signals')
+    .insert(signalData)
+    .select(`
+      *,
+      profiles:user_id (
+        full_name,
+        company
+      )
+    `)
+    .single();
+  return { data, error };
+};
+
+export const respondToSignal = async (userId: string, signalId: string, message: string) => {
+  const { data, error } = await supabase
+    .from('networking_responses')
+    .insert({
+      user_id: userId,
+      signal_id: signalId,
+      message: message
+    })
+    .select()
+    .single();
+  return { data, error };
+};
+
+export const updateUserLocation = async (userId: string, latitude: number, longitude: number, venue?: string) => {
+  const { data, error } = await supabase
+    .from('user_locations')
+    .upsert({
+      user_id: userId,
+      latitude: latitude,
+      longitude: longitude,
+      venue: venue,
+      updated_at: new Date().toISOString()
+    })
+    .select()
+    .single();
+  return { data, error };
+};
+
+export const getNearbyUsers = async (latitude: number, longitude: number, radiusKm: number = 1) => {
+  const { data, error } = await supabase
+    .rpc('get_nearby_users', {
+      user_lat: latitude,
+      user_lng: longitude,
+      radius_km: radiusKm
+    });
+  return { data, error };
+};
+
 // Real-time subscriptions
 export const subscribeToTable = (table: string, callback: (payload: any) => void) => {
   return supabase

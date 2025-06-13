@@ -249,6 +249,106 @@ export interface Database {
           created_at?: string;
         };
       };
+      networking_signals: {
+        Row: {
+          id: string;
+          user_id: string;
+          signal_type: string;
+          message: string;
+          location: string | null;
+          expires_at: string;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          signal_type: string;
+          message: string;
+          location?: string | null;
+          expires_at: string;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          signal_type?: string;
+          message?: string;
+          location?: string | null;
+          expires_at?: string;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      networking_responses: {
+        Row: {
+          id: string;
+          user_id: string;
+          signal_id: string;
+          message: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          signal_id: string;
+          message: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          signal_id?: string;
+          message?: string;
+          created_at?: string;
+        };
+      };
+      user_locations: {
+        Row: {
+          id: string;
+          user_id: string;
+          latitude: number;
+          longitude: number;
+          venue: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          latitude: number;
+          longitude: number;
+          venue?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          latitude?: number;
+          longitude?: number;
+          venue?: string | null;
+          updated_at?: string;
+        };
+      };
+    };
+    Functions: {
+      get_nearby_users: {
+        Args: {
+          user_lat: number;
+          user_lng: number;
+          radius_km?: number;
+        };
+        Returns: {
+          user_id: string;
+          full_name: string | null;
+          company: string | null;
+          venue: string | null;
+          distance_km: number;
+        }[];
+      };
     };
   };
 }
