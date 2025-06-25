@@ -27,7 +27,7 @@ function App() {
             <div className="w-8 h-8 bg-white rounded-lg"></div>
           </div>
           <h3 className="text-xl font-display font-semibold text-neutral-800 mb-2">
-            Vancouver Startup Week
+            Lume
           </h3>
           <p className="text-neutral-600">Loading your experience...</p>
           <div className="mt-6 w-48 h-1 bg-neutral-200 rounded-full mx-auto overflow-hidden">
@@ -57,7 +57,7 @@ function App() {
                 <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
                   <div className="w-6 h-6 bg-white rounded-lg"></div>
                 </div>
-                <div className="font-display text-xl">VSW Connect</div>
+                <div className="font-display text-xl">Lume</div>
               </div>
               <p className="text-neutral-300 leading-relaxed mb-6 max-w-md">
                 Building the future of entrepreneurship, one meaningful connection at a time. 
@@ -99,7 +99,7 @@ function App() {
           
           <div className="border-t border-neutral-700 pt-8 text-center">
             <p className="text-neutral-400">
-              &copy; 2025 Vancouver Startup Week. Crafted with care for meaningful connections.
+              &copy; 2025 Lume. Crafted with care for meaningful connections.
             </p>
           </div>
         </div>

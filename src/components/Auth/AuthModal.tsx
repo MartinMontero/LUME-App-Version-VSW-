@@ -58,7 +58,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       <div className="modal-content max-w-md w-full mx-4 animate-scale-in">
         <div className="flex items-center justify-between p-8 border-b border-neutral-100">
           <h3 className="text-2xl font-display font-semibold text-neutral-800">
-            {isSignUp ? 'Join VSW Connect' : 'Welcome Back'}
+            {isSignUp ? 'Join Lume' : 'Welcome Back'}
           </h3>
           <button
             onClick={onClose}

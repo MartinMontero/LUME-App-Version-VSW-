@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Zap, LogOut, User } from 'lucide-react';
+import { Menu, X, Lightbulb, LogOut, User } from 'lucide-react';
 import { signOut } from '../lib/supabase';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 
@@ -67,10 +67,10 @@ export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => 
           {/* Logo */}
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
-              <Zap className="w-6 h-6 text-white" />
+              <Lightbulb className="w-6 h-6 text-white" />
             </div>
             <div className="font-display text-xl text-neutral-800">
-              VSW Connect
+              Lume
             </div>
           </div>
 
