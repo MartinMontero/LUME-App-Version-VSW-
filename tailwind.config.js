@@ -15,6 +15,9 @@ export default {
           spark: '#f59e0b',
         },
       },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+      },
     },
   },
   plugins: [],
