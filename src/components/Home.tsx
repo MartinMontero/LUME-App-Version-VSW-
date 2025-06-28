@@ -35,6 +35,10 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+    // Haptic feedback
+    if ('vibrate' in navigator) {
+      navigator.vibrate(50);
+    }
   };
 
   const scrollToCommunity = () => {
@@ -42,10 +46,22 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+    // Haptic feedback
+    if ('vibrate' in navigator) {
+      navigator.vibrate(50);
+    }
+  };
+
+  const handleAuthClick = () => {
+    onAuthClick();
+    // Haptic feedback
+    if ('vibrate' in navigator) {
+      navigator.vibrate(100);
+    }
   };
 
   return (
-    <section id="home" className="min-h-screen flex flex-col justify-center px-6 py-20 relative overflow-hidden bg-pattern">
+    <section id="home" className="min-h-screen flex flex-col justify-center px-6 py-20 relative overflow-hidden bg-pattern safe-area-top">
       {/* Background Elements */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-20 left-10 w-72 h-72 bg-lume-glow/20 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
@@ -61,22 +77,22 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
             Vancouver Startup Week 2025
           </div>
           
-          <h1 className="text-5xl md:text-7xl font-display font-bold text-white mb-6 leading-tight">
+          <h1 className="text-4xl md:text-5xl lg:text-7xl font-display font-bold text-white mb-6 leading-tight">
             Where boundaries
             <span className="block gradient-text">dissolve into brilliance</span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-lume-light max-w-4xl mx-auto mb-12 leading-relaxed opacity-90">
+          <p className="text-lg md:text-xl lg:text-2xl text-lume-light max-w-4xl mx-auto mb-12 leading-relaxed opacity-90">
             Your intelligent companion for Vancouver Startup Week. Discover breakthrough opportunities, 
             connect with fellow entrepreneurs, and build the future together.
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <button onClick={scrollToSchedule} className="btn-primary text-lg px-8 py-4">
+            <button onClick={scrollToSchedule} className="btn-primary text-lg px-8 py-4 w-full sm:w-auto">
               Explore Events
               <ArrowRight className="w-5 h-5" />
             </button>
-            <button onClick={onAuthClick} className="btn-constellation text-lg px-8 py-4">
+            <button onClick={handleAuthClick} className="btn-constellation text-lg px-8 py-4 w-full sm:w-auto">
               <Sparkles className="w-5 h-5" />
               Add to Constellation
             </button>
@@ -84,15 +100,15 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-16 md:mb-20 animate-slide-up" style={{ animationDelay: '0.2s' }}>
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (
-              <div key={index} className="card-elevated p-8 text-center interactive">
-                <div className={`w-16 h-16 bg-gradient-to-br ${stat.color} rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg`}>
-                  <Icon className="w-8 h-8 text-white" />
+              <div key={index} className="card-elevated p-6 md:p-8 text-center interactive">
+                <div className={`w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br ${stat.color} rounded-2xl flex items-center justify-center mx-auto mb-4 md:mb-6 shadow-lg`}>
+                  <Icon className="w-6 h-6 md:w-8 md:h-8 text-white" />
                 </div>
-                <div className="text-4xl font-display font-bold text-white mb-2">
+                <div className="text-3xl md:text-4xl font-display font-bold text-white mb-2">
                   {stat.value}
                 </div>
                 <div className="text-lume-light font-medium opacity-80">
@@ -104,18 +120,18 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 animate-slide-up" style={{ animationDelay: '0.4s' }}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 animate-slide-up" style={{ animationDelay: '0.4s' }}>
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
-              <div key={index} className="card-floating p-8 text-center">
-                <div className="w-12 h-12 bg-lume-ocean/50 rounded-xl flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
-                  <Icon className="w-6 h-6 text-lume-glow" />
+              <div key={index} className="card-floating p-6 md:p-8 text-center">
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-lume-ocean/50 rounded-xl flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+                  <Icon className="w-5 h-5 md:w-6 md:h-6 text-lume-glow" />
                 </div>
-                <h3 className="text-xl font-display font-semibold text-white mb-3">
+                <h3 className="text-lg md:text-xl font-display font-semibold text-white mb-3">
                   {feature.title}
                 </h3>
-                <p className="text-lume-light leading-relaxed opacity-80">
+                <p className="text-sm md:text-base text-lume-light leading-relaxed opacity-80">
                   {feature.description}
                 </p>
               </div>

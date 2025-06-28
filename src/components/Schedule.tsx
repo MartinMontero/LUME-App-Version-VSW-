@@ -160,8 +160,21 @@ export const Schedule: React.FC = () => {
         newSavedEvents.add(eventId);
       }
       setSavedEvents(newSavedEvents);
+      
+      // Haptic feedback
+      if ('vibrate' in navigator) {
+        navigator.vibrate(50);
+      }
     } catch (error) {
       console.error('Error toggling event save:', error);
+    }
+  };
+
+  const handleFilterClick = (filter: TrackFilter) => {
+    setActiveFilter(filter);
+    // Haptic feedback
+    if ('vibrate' in navigator) {
+      navigator.vibrate(30);
     }
   };
 
@@ -185,7 +198,7 @@ export const Schedule: React.FC = () => {
 
   if (loading) {
     return (
-      <section id="schedule" className="py-24 px-6 gradient-ocean">
+      <section id="schedule" className="py-24 px-6 gradient-ocean safe-area-top">
         <div className="max-w-7xl mx-auto">
           <div className="text-center">
             <div className="w-16 h-16 gradient-aurora rounded-2xl flex items-center justify-center mx-auto mb-6">
@@ -199,7 +212,7 @@ export const Schedule: React.FC = () => {
   }
 
   return (
-    <section id="schedule" className="py-24 px-6 gradient-ocean">
+    <section id="schedule" className="py-24 px-6 gradient-ocean safe-area-top">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16 animate-fade-in-up">
@@ -207,11 +220,11 @@ export const Schedule: React.FC = () => {
             <Calendar className="w-4 h-4 mr-2" />
             Smart Schedule
           </div>
-          <h2 className="text-4xl md:text-5xl font-display font-bold text-white mb-6">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-white mb-6">
             Your Personalized
             <span className="block gradient-text">Event Journey</span>
           </h2>
-          <p className="text-xl text-lume-light max-w-3xl mx-auto leading-relaxed opacity-90">
+          <p className="text-lg md:text-xl text-lume-light max-w-3xl mx-auto leading-relaxed opacity-90">
             Navigate the week's events with intelligent filtering, save your favorites, 
             and never miss the sessions that matter to your startup journey.
           </p>
@@ -251,8 +264,8 @@ export const Schedule: React.FC = () => {
           {/* Main Content */}
           <div className="lg:col-span-3 space-y-8">
             {/* Chart */}
-            <div className="card-elevated p-8 animate-fade-in-right stagger-3">
-              <h3 className="text-2xl font-display font-semibold text-white mb-6">
+            <div className="card-elevated p-6 md:p-8 animate-fade-in-right stagger-3">
+              <h3 className="text-xl md:text-2xl font-display font-semibold text-white mb-6">
                 Events by Track
               </h3>
               <div className="chart-container">
@@ -261,12 +274,12 @@ export const Schedule: React.FC = () => {
             </div>
 
             {/* Serendipity Multiplier and Filters */}
-            <div className="card-elevated p-8 animate-fade-in-right stagger-4">
-              <div className="flex flex-col lg:flex-row gap-6 items-center">
+            <div className="card-elevated p-6 md:p-8 animate-fade-in-right stagger-4">
+              <div className="flex flex-col gap-6">
                 {/* Serendipity Multiplier */}
-                <div className="flex-1 max-w-md">
-                  <div className="serendipity-container flex items-center gap-4">
-                    <div className="text-2xl">✨</div>
+                <div className="w-full">
+                  <div className="serendipity-container">
+                    <div className="text-2xl mr-3">✨</div>
                     <input
                       type="text"
                       placeholder="What's exciting you today?"
@@ -283,8 +296,8 @@ export const Schedule: React.FC = () => {
                   {filters.map(filter => (
                     <button
                       key={filter}
-                      onClick={() => setActiveFilter(filter)}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                      onClick={() => handleFilterClick(filter)}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 min-h-[44px] ${
                         activeFilter === filter 
                           ? 'gradient-aurora text-white shadow-lg' 
                           : 'bg-lume-ocean/30 text-lume-light hover:bg-lume-ocean/50'
@@ -307,7 +320,7 @@ export const Schedule: React.FC = () => {
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
+                      <div className="flex items-center gap-3 mb-3 flex-wrap">
                         <span 
                           className="px-3 py-1 text-xs font-semibold rounded-full text-white"
                           style={{ backgroundColor: trackColors[event.track as keyof typeof trackColors] }}
@@ -317,7 +330,7 @@ export const Schedule: React.FC = () => {
                         {user && (
                           <button
                             onClick={() => toggleSaveEvent(event.id)}
-                            className={`p-1 rounded-full transition-colors notification-badge ${
+                            className={`p-2 rounded-full transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center ${
                               savedEvents.has(event.id) 
                                 ? 'text-lume-warm hover:text-lume-warm/80' 
                                 : 'text-lume-mist hover:text-lume-light'
@@ -327,42 +340,42 @@ export const Schedule: React.FC = () => {
                           </button>
                         )}
                       </div>
-                      <h4 className="text-xl font-display font-semibold text-white mb-3 leading-tight">
+                      <h4 className="text-lg md:text-xl font-display font-semibold text-white mb-3 leading-tight">
                         {event.title}
                       </h4>
                     </div>
                   </div>
                   
                   <div className="space-y-3 mb-4">
-                    <div className="flex items-center text-lume-light">
-                      <Clock className="w-4 h-4 mr-3 text-lume-mist" />
+                    <div className="flex items-center text-lume-light text-sm">
+                      <Clock className="w-4 h-4 mr-3 text-lume-mist flex-shrink-0" />
                       <span className="font-medium">
                         {formatDate(event.start_time)} • {formatTime(event.start_time)} - {formatTime(event.end_time)}
                       </span>
                     </div>
-                    <div className="flex items-center text-lume-light">
-                      <MapPin className="w-4 h-4 mr-3 text-lume-mist" />
+                    <div className="flex items-center text-lume-light text-sm">
+                      <MapPin className="w-4 h-4 mr-3 text-lume-mist flex-shrink-0" />
                       <span>{event.location}</span>
                     </div>
                     {event.speakers && event.speakers.length > 0 && (
-                      <div className="flex items-center text-lume-light">
-                        <Users className="w-4 h-4 mr-3 text-lume-mist" />
+                      <div className="flex items-center text-lume-light text-sm">
+                        <Users className="w-4 h-4 mr-3 text-lume-mist flex-shrink-0" />
                         <span>{event.speakers.join(', ')}</span>
                       </div>
                     )}
                   </div>
                   
                   {event.description && (
-                    <p className="text-lume-light leading-relaxed mb-4 opacity-80">
+                    <p className="text-lume-light leading-relaxed mb-4 opacity-80 text-sm">
                       {event.description}
                     </p>
                   )}
                   
-                  <div className="flex items-center justify-between">
-                    <button className="btn-ghost text-lume-glow hover:bg-lume-glow/10">
+                  <div className="flex items-center justify-between gap-4">
+                    <button className="btn-ghost text-lume-glow hover:bg-lume-glow/10 flex-1 min-h-[44px]">
                       View Details
                     </button>
-                    <button className="btn-secondary">
+                    <button className="btn-secondary flex-1 min-h-[44px]">
                       Add to Calendar
                     </button>
                   </div>

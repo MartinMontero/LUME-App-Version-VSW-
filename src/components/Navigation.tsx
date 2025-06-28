@@ -76,18 +76,35 @@ export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => 
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     setIsMenuOpen(false);
+    
+    // Haptic feedback for mobile
+    if ('vibrate' in navigator) {
+      navigator.vibrate(50);
+    }
   };
 
   const handleSignOut = async () => {
     try {
       await signOut();
+      // Haptic feedback
+      if ('vibrate' in navigator) {
+        navigator.vibrate(100);
+      }
     } catch (error) {
       console.error('Error signing out:', error);
     }
   };
 
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+    // Haptic feedback
+    if ('vibrate' in navigator) {
+      navigator.vibrate(50);
+    }
+  };
+
   return (
-    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 safe-area-top ${
       scrolled 
         ? 'backdrop-blur-[10px] shadow-lg border-b border-lume-mist/20' 
         : 'bg-transparent'
@@ -118,7 +135,7 @@ export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => 
               </div>
             </div>
             
-            {/* Time-based Greeting */}
+            {/* Time-based Greeting - Hidden on mobile */}
             <div className="hidden lg:block">
               <div className="text-sm text-lume-light/80 font-medium">
                 {greeting}
@@ -162,68 +179,77 @@ export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => 
                 </button>
               </div>
             ) : (
-              <button onClick={onAuthClick} className="btn-primary">
-                Get Started
+              <button onClick={onAuthClick} className="btn-constellation">
+                Join Constellation
               </button>
             )}
           </div>
 
           {/* Mobile Menu Button */}
           <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-lume-ocean/50 transition-colors"
+            onClick={toggleMenu}
+            className="md:hidden p-3 rounded-lg hover:bg-lume-ocean/50 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
           >
             {isMenuOpen ? <X size={24} className="text-white" /> : <Menu size={24} className="text-white" />}
           </button>
         </div>
 
         {/* Mobile Greeting */}
-        <div className="lg:hidden pb-2">
+        <div className="lg:hidden pb-2 px-2">
           <div className="text-xs text-lume-light/70 font-medium text-center">
             {greeting}
           </div>
         </div>
+      </div>
 
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden py-4 animate-slide-up">
-            <div className="glass rounded-2xl p-4 space-y-2 border border-lume-mist/20">
-              {menuItems.map(item => (
-                <button
-                  key={item.id}
-                  onClick={() => scrollToSection(item.id)}
-                  className={`block w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
-                    activeSection === item.id 
-                      ? 'bg-gradient-to-r from-lume-glow to-lume-soft text-lume-deep' 
-                      : 'text-lume-light hover:bg-lume-ocean/50'
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
-              <div className="pt-4 border-t border-lume-mist/20">
-                {user ? (
-                  <div className="space-y-2">
-                    <div className="px-4 py-2 text-sm text-lume-light">
+      {/* Mobile Menu Overlay */}
+      {isMenuOpen && (
+        <div className="mobile-menu-overlay animate-fade-in">
+          <div className="w-full max-w-sm space-y-4">
+            {menuItems.map((item, index) => (
+              <button
+                key={item.id}
+                onClick={() => scrollToSection(item.id)}
+                className={`mobile-menu-item ${
+                  activeSection === item.id ? 'active' : ''
+                }`}
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                {item.label}
+              </button>
+            ))}
+            
+            <div className="pt-6 border-t border-lume-mist/20">
+              {user ? (
+                <div className="space-y-4">
+                  <div className="text-center px-4 py-3 bg-lume-ocean/30 rounded-xl backdrop-blur-sm">
+                    <div className="text-sm text-lume-light">
                       Signed in as {user.user_metadata?.full_name || user.email?.split('@')[0]}
                     </div>
-                    <button
-                      onClick={handleSignOut}
-                      className="btn-secondary w-full justify-center"
-                    >
-                      Sign Out
-                    </button>
                   </div>
-                ) : (
-                  <button onClick={onAuthClick} className="btn-primary w-full justify-center">
-                    Get Started
+                  <button
+                    onClick={handleSignOut}
+                    className="btn-secondary w-full justify-center min-h-[56px]"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    Sign Out
                   </button>
-                )}
-              </div>
+                </div>
+              ) : (
+                <button 
+                  onClick={() => {
+                    onAuthClick();
+                    setIsMenuOpen(false);
+                  }} 
+                  className="btn-constellation w-full justify-center min-h-[56px]"
+                >
+                  Join Constellation
+                </button>
+              )}
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </nav>
   );
 };
