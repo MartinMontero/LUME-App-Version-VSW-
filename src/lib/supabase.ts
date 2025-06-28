@@ -98,18 +98,31 @@ export const getSavedEvents = (userId: string) =>
   );
 
 // Pitches helpers
-export const getPitches = () =>
-  apiCall(() => supabase
-    .from('pitches')
-    .select(`
-      *,
-      profiles:user_id (
-        full_name,
-        company
-      )
-    `)
-    .order('created_at', { ascending: false })
-  );
+export const getPitches = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (user) {
+    // User is authenticated, include profile data
+    return apiCall(() => supabase
+      .from('pitches')
+      .select(`
+        *,
+        profiles:user_id (
+          full_name,
+          company
+        )
+      `)
+      .order('created_at', { ascending: false })
+    );
+  } else {
+    // User is not authenticated, exclude profile data
+    return apiCall(() => supabase
+      .from('pitches')
+      .select('*')
+      .order('created_at', { ascending: false })
+    );
+  }
+};
 
 export const createPitch = (pitchData: any) =>
   apiCall(() => supabase
@@ -147,18 +160,31 @@ export const unlikePitch = (userId: string, pitchId: string) =>
   );
 
 // Gatherings helpers
-export const getGatherings = () =>
-  apiCall(() => supabase
-    .from('gatherings')
-    .select(`
-      *,
-      profiles:organizer_id (
-        full_name,
-        company
-      )
-    `)
-    .order('created_at', { ascending: false })
-  );
+export const getGatherings = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (user) {
+    // User is authenticated, include profile data
+    return apiCall(() => supabase
+      .from('gatherings')
+      .select(`
+        *,
+        profiles:organizer_id (
+          full_name,
+          company
+        )
+      `)
+      .order('created_at', { ascending: false })
+    );
+  } else {
+    // User is not authenticated, exclude profile data
+    return apiCall(() => supabase
+      .from('gatherings')
+      .select('*')
+      .order('created_at', { ascending: false })
+    );
+  }
+};
 
 export const createGathering = (gatheringData: any) =>
   apiCall(() => supabase
@@ -195,20 +221,35 @@ export const leaveGathering = (userId: string, gatheringId: string) =>
   );
 
 // Networking Signals helpers
-export const getNetworkingSignals = () =>
-  apiCall(() => supabase
-    .from('networking_signals')
-    .select(`
-      *,
-      profiles:user_id (
-        full_name,
-        company
-      )
-    `)
-    .eq('is_active', true)
-    .gt('expires_at', new Date().toISOString())
-    .order('created_at', { ascending: false })
-  );
+export const getNetworkingSignals = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (user) {
+    // User is authenticated, include profile data
+    return apiCall(() => supabase
+      .from('networking_signals')
+      .select(`
+        *,
+        profiles:user_id (
+          full_name,
+          company
+        )
+      `)
+      .eq('is_active', true)
+      .gt('expires_at', new Date().toISOString())
+      .order('created_at', { ascending: false })
+    );
+  } else {
+    // User is not authenticated, exclude profile data
+    return apiCall(() => supabase
+      .from('networking_signals')
+      .select('*')
+      .eq('is_active', true)
+      .gt('expires_at', new Date().toISOString())
+      .order('created_at', { ascending: false })
+    );
+  }
+};
 
 export const createNetworkingSignal = (signalData: any) =>
   apiCall(() => supabase
