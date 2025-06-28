@@ -43,25 +43,32 @@ export const Community: React.FC = () => {
   const { isOpen: isGatheringModalOpen, openModal: openGatheringModal, closeModal: closeGatheringModal } = useModal();
 
   useEffect(() => {
-    loadGatherings();
-    
-    // Subscribe to real-time updates
-    const subscription = subscribeToTable('gatherings', (payload) => {
-      if (payload.eventType === 'INSERT') {
-        setGatherings(prev => [payload.new, ...prev]);
-      } else if (payload.eventType === 'UPDATE') {
-        setGatherings(prev => prev.map(gathering => 
-          gathering.id === payload.new.id ? payload.new : gathering
-        ));
-      } else if (payload.eventType === 'DELETE') {
-        setGatherings(prev => prev.filter(gathering => gathering.id !== payload.old.id));
-      }
-    });
+    if (user) {
+      loadGatherings();
+      
+      // Subscribe to real-time updates only if user is authenticated
+      const subscription = subscribeToTable('gatherings', (payload) => {
+        if (payload.eventType === 'INSERT') {
+          setGatherings(prev => [payload.new, ...prev]);
+        } else if (payload.eventType === 'UPDATE') {
+          setGatherings(prev => prev.map(gathering => 
+            gathering.id === payload.new.id ? payload.new : gathering
+          ));
+        } else if (payload.eventType === 'DELETE') {
+          setGatherings(prev => prev.filter(gathering => gathering.id !== payload.old.id));
+        }
+      });
 
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
+      return () => {
+        subscription.unsubscribe();
+      };
+    } else {
+      // User is not authenticated, clear data and set appropriate state
+      setGatherings([]);
+      setLoadingError('Authentication required to view gatherings');
+      setLoading(false);
+    }
+  }, [user]);
 
   const loadGatherings = async () => {
     try {

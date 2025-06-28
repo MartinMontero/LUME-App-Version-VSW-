@@ -45,10 +45,10 @@ export const Networking: React.FC = () => {
   const { isOpen: isPitchDetailOpen, openModal: openPitchDetail, closeModal: closePitchDetail } = useModal();
 
   useEffect(() => {
-    loadPitches();
-    
-    // Only subscribe to real-time updates if user is authenticated
     if (user) {
+      loadPitches();
+      
+      // Subscribe to real-time updates only if user is authenticated
       const subscription = subscribeToTable('pitches', (payload) => {
         if (payload.eventType === 'INSERT') {
           setPitches(prev => [payload.new, ...prev]);
@@ -64,6 +64,11 @@ export const Networking: React.FC = () => {
       return () => {
         subscription.unsubscribe();
       };
+    } else {
+      // User is not authenticated, clear data and set appropriate state
+      setPitches([]);
+      setLoadingError('Authentication required to view pitches');
+      setLoading(false);
     }
   }, [user]);
 
