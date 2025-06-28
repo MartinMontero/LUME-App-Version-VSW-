@@ -139,10 +139,13 @@ export const Schedule: React.FC = () => {
     try {
       setLoadingError(null);
       const { data, error: fetchError } = await getEvents();
-      if (fetchError) throw new Error(fetchError);
+      if (fetchError) {
+        setLoadingError(fetchError);
+        return;
+      }
       setEvents(data || []);
     } catch (err: any) {
-      setLoadingError(err.message);
+      setLoadingError(err.message || 'Failed to load events');
       error('Failed to load events', 'Something dimmed unexpectedly');
     } finally {
       setLoading(false);
@@ -154,7 +157,10 @@ export const Schedule: React.FC = () => {
     
     try {
       const { data, error: fetchError } = await getSavedEvents(user.id);
-      if (fetchError) throw new Error(fetchError);
+      if (fetchError) {
+        error('Failed to load saved events', fetchError);
+        return;
+      }
       setSavedEvents(new Set(data?.map(save => save.event_id) || []));
     } catch (err: any) {
       error('Failed to load saved events', err.message);
@@ -168,12 +174,18 @@ export const Schedule: React.FC = () => {
       const newSavedEvents = new Set(savedEvents);
       if (newSavedEvents.has(eventId)) {
         const { error: unsaveError } = await unsaveEvent(user.id, eventId);
-        if (unsaveError) throw new Error(unsaveError);
+        if (unsaveError) {
+          error('Failed to remove event', unsaveError);
+          return;
+        }
         newSavedEvents.delete(eventId);
         success('Event removed from constellation');
       } else {
         const { error: saveError } = await saveEvent(user.id, eventId);
-        if (saveError) throw new Error(saveError);
+        if (saveError) {
+          error('Failed to save event', saveError);
+          return;
+        }
         newSavedEvents.add(eventId);
         success('Light bridge formed!', 'Event added to your constellation');
       }

@@ -104,7 +104,10 @@ export const NetworkingSignals: React.FC = () => {
     try {
       setLoadingError(null);
       const { data, error } = await getNetworkingSignals();
-      if (error) throw error;
+      if (error) {
+        setLoadingError(error);
+        return;
+      }
       setSignals(data || []);
     } catch (error: any) {
       console.error('Error loading signals:', error);
@@ -123,7 +126,10 @@ export const NetworkingSignals: React.FC = () => {
     
     try {
       const { data, error } = await getNearbyUsers(userLocation.lat, userLocation.lng, 2);
-      if (error) throw error;
+      if (error) {
+        console.error('Error loading nearby users:', error);
+        return;
+      }
       setNearbyUsers(data || []);
     } catch (error) {
       console.error('Error loading nearby users:', error);
@@ -139,7 +145,10 @@ export const NetworkingSignals: React.FC = () => {
           const { latitude, longitude } = position.coords;
           setUserLocation({ lat: latitude, lng: longitude });
           
-          await updateUserLocation(user.id, latitude, longitude, 'Vancouver Convention Center');
+          const { error } = await updateUserLocation(user.id, latitude, longitude, 'Vancouver Convention Center');
+          if (error) {
+            console.error('Error updating location:', error);
+          }
         },
         (error) => {
           console.log('Location access denied:', error);
@@ -164,7 +173,10 @@ export const NetworkingSignals: React.FC = () => {
         expires_at: expiresAt.toISOString()
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error creating signal:', error);
+        return;
+      }
       
       setSignalForm({
         signal_type: 'coffee',
@@ -182,7 +194,10 @@ export const NetworkingSignals: React.FC = () => {
     if (!user) return;
     
     try {
-      await respondToSignal(user.id, signalId, message);
+      const { error } = await respondToSignal(user.id, signalId, message);
+      if (error) {
+        console.error('Error responding to signal:', error);
+      }
     } catch (error) {
       console.error('Error responding to signal:', error);
     }

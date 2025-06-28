@@ -77,11 +77,11 @@ export const Networking: React.FC = () => {
       setLoadingError(null);
       const { data, error } = await getPitches();
       if (error) {
-        setLoadingError(error.message);
+        setLoadingError(error);
         setPitches([]);
-      } else {
-        setPitches(data || []);
+        return;
       }
+      setPitches(data || []);
     } catch (error) {
       console.error('Error loading pitches:', error);
       setLoadingError('Failed to load pitches');
@@ -101,7 +101,10 @@ export const Networking: React.FC = () => {
         ...pitchForm
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error creating pitch:', error);
+        return;
+      }
       
       setPitchForm({
         title: '',
@@ -124,14 +127,22 @@ export const Networking: React.FC = () => {
       const isLiked = likedPitches.has(pitchId);
       
       if (isLiked) {
-        await unlikePitch(user.id, pitchId);
+        const { error } = await unlikePitch(user.id, pitchId);
+        if (error) {
+          console.error('Error unliking pitch:', error);
+          return;
+        }
         setLikedPitches(prev => {
           const newSet = new Set(prev);
           newSet.delete(pitchId);
           return newSet;
         });
       } else {
-        await likePitch(user.id, pitchId);
+        const { error } = await likePitch(user.id, pitchId);
+        if (error) {
+          console.error('Error liking pitch:', error);
+          return;
+        }
         setLikedPitches(prev => new Set(prev).add(pitchId));
       }
     } catch (error) {

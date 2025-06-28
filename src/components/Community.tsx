@@ -74,10 +74,13 @@ export const Community: React.FC = () => {
     try {
       setLoadingError(null);
       const { data, error: fetchError } = await getGatherings();
-      if (fetchError) throw fetchError;
+      if (fetchError) {
+        setLoadingError(fetchError);
+        return;
+      }
       setGatherings(data || []);
     } catch (err: any) {
-      setLoadingError(err.message);
+      setLoadingError(err.message || 'Failed to load gatherings');
       error('Failed to load gatherings', 'Something dimmed unexpectedly');
     } finally {
       setLoading(false);
@@ -98,7 +101,10 @@ export const Community: React.FC = () => {
         max_attendees: gatheringForm.max_attendees ? parseInt(gatheringForm.max_attendees) : null
       });
       
-      if (createError) throw createError;
+      if (createError) {
+        error('Failed to create gathering', createError);
+        return;
+      }
       
       setGatheringForm({
         name: '',
@@ -118,7 +124,11 @@ export const Community: React.FC = () => {
     if (!user) return;
     
     try {
-      await joinGathering(user.id, gatheringId);
+      const { error: joinError } = await joinGathering(user.id, gatheringId);
+      if (joinError) {
+        error('Failed to join gathering', joinError);
+        return;
+      }
       success('Added to constellation!', 'You\'ve joined the gathering');
     } catch (err: any) {
       error('Failed to join gathering', err.message);
