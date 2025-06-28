@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Coffee, Users, MapPin, Clock, Plus, MessageCircle, X, Zap } from 'lucide-react';
+import { Coffee, Users, MapPin, Clock, Plus, MessageCircle, X, Zap, LogIn } from 'lucide-react';
 import { Modal } from './ui/Modal';
 import { useModal } from '../hooks/useModal';
 import { useAuth } from '../hooks/useAuth';
@@ -40,6 +40,7 @@ export const NetworkingSignals: React.FC = () => {
   const [signals, setSignals] = useState<NetworkingSignal[]>([]);
   const [nearbyUsers, setNearbyUsers] = useState<NearbyUser[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingError, setLoadingError] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [signalForm, setSignalForm] = useState({
     signal_type: 'coffee',
@@ -59,47 +60,66 @@ export const NetworkingSignals: React.FC = () => {
   ];
 
   useEffect(() => {
-    loadSignals();
-    requestLocation();
-    
-    // Subscribe to real-time updates
-    const subscription = subscribeToTable('networking_signals', (payload) => {
-      if (payload.eventType === 'INSERT') {
-        setSignals(prev => [payload.new, ...prev]);
-      } else if (payload.eventType === 'UPDATE') {
-        setSignals(prev => prev.map(signal => 
-          signal.id === payload.new.id ? payload.new : signal
-        ));
-      } else if (payload.eventType === 'DELETE') {
-        setSignals(prev => prev.filter(signal => signal.id !== payload.old.id));
-      }
-    });
+    if (user) {
+      loadSignals();
+      requestLocation();
+      
+      // Subscribe to real-time updates only when authenticated
+      const subscription = subscribeToTable('networking_signals', (payload) => {
+        if (payload.eventType === 'INSERT') {
+          setSignals(prev => [payload.new, ...prev]);
+        } else if (payload.eventType === 'UPDATE') {
+          setSignals(prev => prev.map(signal => 
+            signal.id === payload.new.id ? payload.new : signal
+          ));
+        } else if (payload.eventType === 'DELETE') {
+          setSignals(prev => prev.filter(signal => signal.id !== payload.old.id));
+        }
+      });
 
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
+      return () => {
+        subscription.unsubscribe();
+      };
+    } else {
+      // Clear data and stop loading when user is not authenticated
+      setSignals([]);
+      setNearbyUsers([]);
+      setLoading(false);
+      setLoadingError(null);
+    }
+  }, [user]);
 
   useEffect(() => {
-    if (userLocation) {
+    if (userLocation && user) {
       loadNearbyUsers();
     }
-  }, [userLocation]);
+  }, [userLocation, user]);
 
   const loadSignals = async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
     try {
+      setLoadingError(null);
       const { data, error } = await getNetworkingSignals();
       if (error) throw error;
       setSignals(data || []);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading signals:', error);
+      if (error.message?.includes('Authentication required') || error.message?.includes('Auth session missing')) {
+        setLoadingError('authentication');
+      } else {
+        setLoadingError('generic');
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const loadNearbyUsers = async () => {
-    if (!userLocation) return;
+    if (!userLocation || !user) return;
     
     try {
       const { data, error } = await getNearbyUsers(userLocation.lat, userLocation.lng, 2);
@@ -111,15 +131,15 @@ export const NetworkingSignals: React.FC = () => {
   };
 
   const requestLocation = () => {
+    if (!user) return;
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
           setUserLocation({ lat: latitude, lng: longitude });
           
-          if (user) {
-            await updateUserLocation(user.id, latitude, longitude, 'Vancouver Convention Center');
-          }
+          await updateUserLocation(user.id, latitude, longitude, 'Vancouver Convention Center');
         },
         (error) => {
           console.log('Location access denied:', error);
@@ -184,6 +204,60 @@ export const NetworkingSignals: React.FC = () => {
     return signalTypes.find(t => t.value === type) || signalTypes[0];
   };
 
+  // Show authentication required message
+  if (!user) {
+    return (
+      <div className="text-center py-16">
+        <div className="w-16 h-16 bg-lume-ocean/30 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+          <LogIn className="w-8 h-8 text-lume-mist" />
+        </div>
+        <h3 className="text-xl font-display font-semibold text-white mb-2">
+          Sign In to View Networking Signals
+        </h3>
+        <p className="text-lume-light mb-6 opacity-80">
+          Connect with other attendees and broadcast your availability for networking
+        </p>
+      </div>
+    );
+  }
+
+  // Show authentication error
+  if (loadingError === 'authentication') {
+    return (
+      <div className="text-center py-16">
+        <div className="w-16 h-16 bg-lume-ocean/30 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+          <LogIn className="w-8 h-8 text-lume-mist" />
+        </div>
+        <h3 className="text-xl font-display font-semibold text-white mb-2">
+          Authentication Required
+        </h3>
+        <p className="text-lume-light mb-6 opacity-80">
+          Please sign in to view and create networking signals
+        </p>
+      </div>
+    );
+  }
+
+  // Show generic error
+  if (loadingError === 'generic') {
+    return (
+      <div className="text-center py-16">
+        <div className="w-16 h-16 bg-lume-ocean/30 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+          <Coffee className="w-8 h-8 text-lume-mist" />
+        </div>
+        <h3 className="text-xl font-display font-semibold text-white mb-2">
+          Unable to Load Signals
+        </h3>
+        <p className="text-lume-light mb-6 opacity-80">
+          There was an error loading networking signals. Please try again later.
+        </p>
+        <button onClick={loadSignals} className="btn-light-pulse">
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="text-center py-12">
@@ -207,12 +281,10 @@ export const NetworkingSignals: React.FC = () => {
             Broadcast your availability and connect with others in real-time
           </p>
         </div>
-        {user && (
-          <button onClick={openSignalModal} className="btn-light-pulse">
-            <Zap className="w-5 h-5" />
-            Send Light Pulse
-          </button>
-        )}
+        <button onClick={openSignalModal} className="btn-light-pulse">
+          <Zap className="w-5 h-5" />
+          Send Light Pulse
+        </button>
       </div>
 
       {/* Nearby Users */}
@@ -305,7 +377,7 @@ export const NetworkingSignals: React.FC = () => {
                 </div>
               </div>
               
-              {user && user.id !== signal.user_id && (
+              {user.id !== signal.user_id && (
                 <button 
                   onClick={() => handleRespondToSignal(signal.id, 'I\'m interested!')}
                   className="btn-bridge text-sm px-4 py-2 w-full"
@@ -335,12 +407,10 @@ export const NetworkingSignals: React.FC = () => {
           <p className="text-lume-light mb-6 opacity-80">
             Be the first to broadcast your availability for networking
           </p>
-          {user && (
-            <button onClick={openSignalModal} className="btn-light-pulse">
-              <Zap className="w-5 h-5" />
-              Send First Light Pulse
-            </button>
-          )}
+          <button onClick={openSignalModal} className="btn-light-pulse">
+            <Zap className="w-5 h-5" />
+            Send First Light Pulse
+          </button>
         </div>
       )}
 
@@ -428,7 +498,7 @@ export const NetworkingSignals: React.FC = () => {
               <Zap className="w-4 h-4" />
               Send Light Pulse
             </button>
-          </div>
+            </div>
         </form>
       </Modal>
     </div>
