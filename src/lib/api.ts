@@ -23,7 +23,9 @@ export async function apiCall<T>(
     const { data, error } = await operation();
     
     if (error) {
-      console.error('API Error:', error);
+      // Log the error message properly instead of the raw error object
+      const errorMessage = error.message || error;
+      console.error('API Error:', errorMessage);
       
       // Handle Supabase auth errors first (moved to top priority)
       if (error.code === 'PGRST301' || 
