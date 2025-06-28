@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Radio, Search, Coffee, Plus, MessageCircle, Users, Zap, ArrowRight, Heart, Eye, ThumbsUp, Share2 } from 'lucide-react';
+import { Radio, Search, Coffee, Plus, MessageCircle, Users, Zap, ArrowRight, Heart, Eye, ThumbsUp, Share2, LogIn } from 'lucide-react';
 import { Modal } from './ui/Modal';
 import { useModal } from '../hooks/useModal';
 import { useAuth } from '../hooks/useAuth';
@@ -29,6 +29,7 @@ export const Networking: React.FC = () => {
   const { user } = useAuth();
   const [pitches, setPitches] = useState<Pitch[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingError, setLoadingError] = useState<string | null>(null);
   const [selectedPitch, setSelectedPitch] = useState<Pitch | null>(null);
   const [likedPitches, setLikedPitches] = useState<Set<string>>(new Set());
   const [pitchForm, setPitchForm] = useState({
@@ -46,31 +47,40 @@ export const Networking: React.FC = () => {
   useEffect(() => {
     loadPitches();
     
-    // Subscribe to real-time updates
-    const subscription = subscribeToTable('pitches', (payload) => {
-      if (payload.eventType === 'INSERT') {
-        setPitches(prev => [payload.new, ...prev]);
-      } else if (payload.eventType === 'UPDATE') {
-        setPitches(prev => prev.map(pitch => 
-          pitch.id === payload.new.id ? payload.new : pitch
-        ));
-      } else if (payload.eventType === 'DELETE') {
-        setPitches(prev => prev.filter(pitch => pitch.id !== payload.old.id));
-      }
-    });
+    // Only subscribe to real-time updates if user is authenticated
+    if (user) {
+      const subscription = subscribeToTable('pitches', (payload) => {
+        if (payload.eventType === 'INSERT') {
+          setPitches(prev => [payload.new, ...prev]);
+        } else if (payload.eventType === 'UPDATE') {
+          setPitches(prev => prev.map(pitch => 
+            pitch.id === payload.new.id ? payload.new : pitch
+          ));
+        } else if (payload.eventType === 'DELETE') {
+          setPitches(prev => prev.filter(pitch => pitch.id !== payload.old.id));
+        }
+      });
 
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
+      return () => {
+        subscription.unsubscribe();
+      };
+    }
+  }, [user]);
 
   const loadPitches = async () => {
     try {
+      setLoadingError(null);
       const { data, error } = await getPitches();
-      if (error) throw error;
-      setPitches(data || []);
+      if (error) {
+        setLoadingError(error.message);
+        setPitches([]);
+      } else {
+        setPitches(data || []);
+      }
     } catch (error) {
       console.error('Error loading pitches:', error);
+      setLoadingError('Failed to load pitches');
+      setPitches([]);
     } finally {
       setLoading(false);
     }
@@ -164,6 +174,153 @@ export const Networking: React.FC = () => {
     }
   ];
 
+  const renderPitchContent = () => {
+    if (loading) {
+      return (
+        <div className="text-center py-12">
+          <div className="w-12 h-12 bg-lume-ocean/30 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse backdrop-blur-sm">
+            <Zap className="w-6 h-6 text-lume-mist" />
+          </div>
+          <p className="text-lume-light opacity-80">Loading pitches...</p>
+        </div>
+      );
+    }
+
+    if (loadingError) {
+      return (
+        <div className="text-center py-12">
+          <div className="w-16 h-16 bg-lume-ocean/30 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm">
+            <LogIn className="w-8 h-8 text-lume-glow" />
+          </div>
+          <h3 className="text-xl font-display font-semibold text-white mb-3">
+            Sign In to View Pitches
+          </h3>
+          <p className="text-lume-light opacity-80 mb-6 max-w-md mx-auto">
+            Connect with entrepreneurs and discover exciting startup opportunities. 
+            Authentication is required to access the pitch board.
+          </p>
+          <button className="btn-primary">
+            <LogIn className="w-4 h-4" />
+            Sign In to Continue
+          </button>
+        </div>
+      );
+    }
+
+    if (pitches.length === 0) {
+      return (
+        <div className="text-center py-12">
+          <div className="w-16 h-16 bg-lume-ocean/30 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm">
+            <MessageCircle className="w-8 h-8 text-lume-glow" />
+          </div>
+          <h3 className="text-xl font-display font-semibold text-white mb-3">
+            No Pitches Yet
+          </h3>
+          <p className="text-lume-light opacity-80 mb-6">
+            Be the first to share your startup pitch and connect with potential co-founders!
+          </p>
+          {user && (
+            <button onClick={openPitchModal} className="btn-primary">
+              <Plus className="w-4 h-4" />
+              Share Your Pitch
+            </button>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {pitches.map((pitch, index) => (
+          <div 
+            key={pitch.id} 
+            className="luminous-node p-6 cursor-pointer animate-scale-in"
+            style={{ 
+              animationDelay: `${index * 0.1}s`,
+              background: 'radial-gradient(circle at center, rgba(30, 58, 95, 0.9), rgba(10, 22, 40, 0.8))'
+            }}
+            onClick={() => openPitchDetailModal(pitch)}
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="luminous-avatar w-12 h-12 flex items-center justify-center text-white font-bold text-lg">
+                  {pitch.profiles?.full_name?.charAt(0) || 'A'}
+                </div>
+                <div>
+                  <h4 className="font-display font-semibold text-white text-lg leading-tight">
+                    {pitch.title}
+                  </h4>
+                  <p className="text-lume-light text-sm opacity-80">
+                    by {pitch.profiles?.full_name || 'Anonymous'}
+                  </p>
+                </div>
+              </div>
+              <span className="text-xs text-lume-mist">
+                {formatTime(pitch.created_at)}
+              </span>
+            </div>
+            
+            <p className="text-lume-light leading-relaxed mb-4 text-sm line-clamp-3 opacity-90">
+              {pitch.description}
+            </p>
+            
+            <div className="flex items-center gap-2 mb-4">
+              {pitch.stage && (
+                <span className="inline-block px-2 py-1 bg-lume-glow/20 text-lume-glow text-xs font-medium rounded-full border border-lume-glow/30">
+                  {pitch.stage}
+                </span>
+              )}
+              {pitch.industry && (
+                <span className="inline-block px-2 py-1 bg-lume-soft/20 text-lume-soft text-xs font-medium rounded-full border border-lume-soft/30">
+                  {pitch.industry}
+                </span>
+              )}
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleLikePitch(pitch.id);
+                  }}
+                  className={`flex items-center gap-1 transition-colors ${
+                    likedPitches.has(pitch.id) 
+                      ? 'text-lume-spark' 
+                      : 'text-lume-mist hover:text-lume-spark'
+                  }`}
+                  disabled={!user}
+                >
+                  <Heart className={`w-4 h-4 ${likedPitches.has(pitch.id) ? 'fill-current' : ''}`} />
+                  <span className="text-xs">{pitch.likes_count}</span>
+                </button>
+                <button className="flex items-center gap-1 text-lume-mist hover:text-lume-glow transition-colors">
+                  <MessageCircle className="w-4 h-4" />
+                  <span className="text-xs">{pitch.comments_count}</span>
+                </button>
+                <button className="flex items-center gap-1 text-lume-mist hover:text-lume-warm transition-colors">
+                  <Eye className="w-4 h-4" />
+                  <span className="text-xs">View</span>
+                </button>
+              </div>
+              <button 
+                onClick={(e) => e.stopPropagation()}
+                className="text-lume-mist hover:text-lume-glow transition-colors"
+              >
+                <Share2 className="w-4 h-4" />
+              </button>
+            </div>
+            
+            {/* Light bridges connecting to nearby cards */}
+            {index % 3 !== 2 && (
+              <div className="absolute top-1/2 -right-3 w-6 h-0.5 light-bridge"></div>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <section id="networking" className="py-24 px-6 bg-pattern">
       <div className="max-w-7xl mx-auto">
@@ -232,103 +389,7 @@ export const Networking: React.FC = () => {
             )}
           </div>
           
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="w-12 h-12 bg-lume-ocean/30 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse backdrop-blur-sm">
-                <Zap className="w-6 h-6 text-lume-mist" />
-              </div>
-              <p className="text-lume-light opacity-80">Loading pitches...</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {pitches.map((pitch, index) => (
-                <div 
-                  key={pitch.id} 
-                  className="luminous-node p-6 cursor-pointer animate-scale-in"
-                  style={{ 
-                    animationDelay: `${index * 0.1}s`,
-                    background: 'radial-gradient(circle at center, rgba(30, 58, 95, 0.9), rgba(10, 22, 40, 0.8))'
-                  }}
-                  onClick={() => openPitchDetailModal(pitch)}
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="luminous-avatar w-12 h-12 flex items-center justify-center text-white font-bold text-lg">
-                        {pitch.profiles?.full_name?.charAt(0) || 'A'}
-                      </div>
-                      <div>
-                        <h4 className="font-display font-semibold text-white text-lg leading-tight">
-                          {pitch.title}
-                        </h4>
-                        <p className="text-lume-light text-sm opacity-80">
-                          by {pitch.profiles?.full_name || 'Anonymous'}
-                        </p>
-                      </div>
-                    </div>
-                    <span className="text-xs text-lume-mist">
-                      {formatTime(pitch.created_at)}
-                    </span>
-                  </div>
-                  
-                  <p className="text-lume-light leading-relaxed mb-4 text-sm line-clamp-3 opacity-90">
-                    {pitch.description}
-                  </p>
-                  
-                  <div className="flex items-center gap-2 mb-4">
-                    {pitch.stage && (
-                      <span className="inline-block px-2 py-1 bg-lume-glow/20 text-lume-glow text-xs font-medium rounded-full border border-lume-glow/30">
-                        {pitch.stage}
-                      </span>
-                    )}
-                    {pitch.industry && (
-                      <span className="inline-block px-2 py-1 bg-lume-soft/20 text-lume-soft text-xs font-medium rounded-full border border-lume-soft/30">
-                        {pitch.industry}
-                      </span>
-                    )}
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleLikePitch(pitch.id);
-                        }}
-                        className={`flex items-center gap-1 transition-colors ${
-                          likedPitches.has(pitch.id) 
-                            ? 'text-lume-spark' 
-                            : 'text-lume-mist hover:text-lume-spark'
-                        }`}
-                        disabled={!user}
-                      >
-                        <Heart className={`w-4 h-4 ${likedPitches.has(pitch.id) ? 'fill-current' : ''}`} />
-                        <span className="text-xs">{pitch.likes_count}</span>
-                      </button>
-                      <button className="flex items-center gap-1 text-lume-mist hover:text-lume-glow transition-colors">
-                        <MessageCircle className="w-4 h-4" />
-                        <span className="text-xs">{pitch.comments_count}</span>
-                      </button>
-                      <button className="flex items-center gap-1 text-lume-mist hover:text-lume-warm transition-colors">
-                        <Eye className="w-4 h-4" />
-                        <span className="text-xs">View</span>
-                      </button>
-                    </div>
-                    <button 
-                      onClick={(e) => e.stopPropagation()}
-                      className="text-lume-mist hover:text-lume-glow transition-colors"
-                    >
-                      <Share2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                  
-                  {/* Light bridges connecting to nearby cards */}
-                  {index % 3 !== 2 && (
-                    <div className="absolute top-1/2 -right-3 w-6 h-0.5 light-bridge"></div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
+          {renderPitchContent()}
         </div>
 
         {/* Create Pitch Modal */}
