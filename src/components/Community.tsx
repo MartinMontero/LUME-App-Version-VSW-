@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, MapPin, Clock, User, MessageSquare, Heart, Share2, Coffee, Users } from 'lucide-react';
+import { Plus, MapPin, Clock, User, MessageSquare, Heart, Share2, Coffee, Users, Zap } from 'lucide-react';
 import { Modal } from './ui/Modal';
 import { useModal } from '../hooks/useModal';
 import { useAuth } from '../hooks/useAuth';
@@ -271,10 +271,11 @@ export const Community: React.FC = () => {
                   
                   <button 
                     onClick={() => handleJoinGathering(gathering.id)}
-                    className="btn-primary w-full justify-center"
+                    className="btn-constellation w-full justify-center"
                     disabled={!user}
                   >
-                    Join Gathering
+                    <Users className="w-4 h-4" />
+                    Add to Constellation
                   </button>
                   
                   {/* Light bridges connecting to nearby gatherings */}

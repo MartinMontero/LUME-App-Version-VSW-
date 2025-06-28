@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Users } from 'lucide-react';
+import { Users, Zap } from 'lucide-react';
 
 interface Collaborator {
   id: string;
@@ -159,8 +159,9 @@ export const BrightnessCard: React.FC<BrightnessCardProps> = ({
           <button className="btn-ghost text-lume-glow hover:bg-lume-glow/10 text-sm">
             View Details
           </button>
-          <button className="btn-secondary text-sm px-4 py-2">
-            Collaborate
+          <button className="btn-light-pulse text-sm px-4 py-2">
+            <Zap className="w-4 h-4" />
+            Send Light Pulse
           </button>
         </div>
       </div>

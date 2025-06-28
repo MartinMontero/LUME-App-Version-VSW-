@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Coffee, Users, MapPin, Clock, Plus, MessageCircle, X } from 'lucide-react';
+import { Coffee, Users, MapPin, Clock, Plus, MessageCircle, X, Zap } from 'lucide-react';
 import { Modal } from './ui/Modal';
 import { useModal } from '../hooks/useModal';
 import { useAuth } from '../hooks/useAuth';
@@ -208,9 +208,9 @@ export const NetworkingSignals: React.FC = () => {
           </p>
         </div>
         {user && (
-          <button onClick={openSignalModal} className="btn-primary">
-            <Plus className="w-5 h-5" />
-            Broadcast Signal
+          <button onClick={openSignalModal} className="btn-light-pulse">
+            <Zap className="w-5 h-5" />
+            Send Light Pulse
           </button>
         )}
       </div>
@@ -308,9 +308,10 @@ export const NetworkingSignals: React.FC = () => {
               {user && user.id !== signal.user_id && (
                 <button 
                   onClick={() => handleRespondToSignal(signal.id, 'I\'m interested!')}
-                  className="btn-secondary text-sm px-4 py-2 w-full"
+                  className="btn-bridge text-sm px-4 py-2 w-full"
                 >
-                  Respond
+                  <MessageCircle className="w-4 h-4" />
+                  Bridge Conversation
                 </button>
               )}
               
@@ -335,9 +336,9 @@ export const NetworkingSignals: React.FC = () => {
             Be the first to broadcast your availability for networking
           </p>
           {user && (
-            <button onClick={openSignalModal} className="btn-primary">
-              <Plus className="w-5 h-5" />
-              Create First Signal
+            <button onClick={openSignalModal} className="btn-light-pulse">
+              <Zap className="w-5 h-5" />
+              Send First Light Pulse
             </button>
           )}
         </div>
@@ -422,8 +423,9 @@ export const NetworkingSignals: React.FC = () => {
             <button type="button" onClick={closeSignalModal} className="btn-secondary flex-1">
               Cancel
             </button>
-            <button type="submit" className="btn-primary flex-1">
-              Broadcast Signal
+            <button type="submit" className="btn-light-pulse flex-1">
+              <Zap className="w-4 h-4" />
+              Send Light Pulse
             </button>
           </div>
         </form>

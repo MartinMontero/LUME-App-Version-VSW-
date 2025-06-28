@@ -519,27 +519,45 @@ body {
   transform: translateY(-2px);
 }
 
-/* Buttons */
+/* LUME Button System */
 .btn-primary {
-  background: linear-gradient(135deg, var(--lume-glow) 0%, var(--lume-soft) 100%);
-  color: var(--lume-deep);
+  background: linear-gradient(135deg, var(--lume-ocean), var(--lume-glow));
   border: none;
-  border-radius: var(--radius-full);
-  padding: var(--space-3) var(--space-6);
+  border-radius: 25px;
+  padding: 0.75rem 2rem;
+  color: white;
   font-weight: 600;
   font-size: var(--text-sm);
-  transition: all var(--transition-fast);
+  transition: all 0.3s ease;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  box-shadow: 0 4px 15px rgba(78, 205, 196, 0.2);
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
 }
 
 .btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
-  background: linear-gradient(135deg, var(--lume-soft) 0%, var(--lume-glow) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(78, 205, 196, 0.3);
+  background: linear-gradient(135deg, var(--lume-glow), var(--lume-soft));
+}
+
+.btn-primary:hover::before {
+  left: 100%;
 }
 
 .btn-primary:active {
@@ -547,44 +565,187 @@ body {
 }
 
 .btn-secondary {
-  background: rgba(118, 146, 183, 0.2);
+  background: rgba(78, 205, 196, 0.1);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 25px;
+  padding: 0.75rem 2rem;
   color: var(--lume-light);
-  border: 1px solid rgba(118, 146, 183, 0.3);
-  border-radius: var(--radius-full);
-  padding: var(--space-3) var(--space-6);
   font-weight: 500;
   font-size: var(--text-sm);
-  transition: all var(--transition-fast);
+  transition: all 0.3s ease;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
+  text-decoration: none;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .btn-secondary:hover {
-  background: rgba(118, 146, 183, 0.3);
-  border-color: rgba(78, 205, 196, 0.4);
+  border-color: var(--lume-glow);
+  background: rgba(78, 205, 196, 0.2);
   transform: translateY(-1px);
+  box-shadow: 0 5px 20px rgba(78, 205, 196, 0.2);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
 }
 
 .btn-ghost {
   background: transparent;
   color: var(--lume-mist);
   border: none;
-  border-radius: var(--radius-lg);
-  padding: var(--space-2) var(--space-4);
+  border-radius: 25px;
+  padding: 0.5rem 1.5rem;
   font-weight: 500;
   font-size: var(--text-sm);
-  transition: all var(--transition-fast);
+  transition: all 0.3s ease;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
+  text-decoration: none;
 }
 
 .btn-ghost:hover {
   background: rgba(78, 205, 196, 0.1);
   color: var(--lume-light);
+  transform: translateY(-1px);
+}
+
+.btn-ghost:active {
+  transform: translateY(0);
+}
+
+/* Special Action Buttons */
+.btn-light-pulse {
+  background: linear-gradient(135deg, var(--lume-spark), var(--lume-warm));
+  border: none;
+  border-radius: 25px;
+  padding: 0.75rem 2rem;
+  color: white;
+  font-weight: 600;
+  font-size: var(--text-sm);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.2);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.btn-light-pulse::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-light-pulse:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(255, 107, 107, 0.4);
+  animation-play-state: paused;
+}
+
+.btn-light-pulse:hover::before {
+  left: 100%;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.2);
+  }
+  50% {
+    box-shadow: 0 4px 25px rgba(255, 107, 107, 0.4);
+  }
+}
+
+.btn-bridge {
+  background: linear-gradient(135deg, var(--lume-soft), var(--lume-glow));
+  border: none;
+  border-radius: 25px;
+  padding: 0.75rem 2rem;
+  color: var(--lume-deep);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  box-shadow: 0 4px 15px rgba(149, 225, 211, 0.2);
+}
+
+.btn-bridge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-bridge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(149, 225, 211, 0.3);
+}
+
+.btn-bridge:hover::before {
+  left: 100%;
+}
+
+.btn-constellation {
+  background: linear-gradient(135deg, var(--lume-warm), var(--lume-spark));
+  border: none;
+  border-radius: 25px;
+  padding: 0.75rem 2rem;
+  color: var(--lume-deep);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  box-shadow: 0 4px 15px rgba(255, 230, 109, 0.2);
+}
+
+.btn-constellation::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-constellation:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(255, 230, 109, 0.3);
+}
+
+.btn-constellation:hover::before {
+  left: 100%;
 }
 
 /* Form Elements */
@@ -747,8 +908,12 @@ body {
   }
   
   .btn-primary,
-  .btn-secondary {
-    padding: var(--space-3) var(--space-5);
+  .btn-secondary,
+  .btn-ghost,
+  .btn-light-pulse,
+  .btn-bridge,
+  .btn-constellation {
+    padding: 0.625rem 1.5rem;
     font-size: var(--text-sm);
   }
   

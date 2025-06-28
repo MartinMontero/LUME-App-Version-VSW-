@@ -487,8 +487,9 @@ export const Networking: React.FC = () => {
                   </div>
                 </div>
                 
-                <button className="btn-primary">
-                  Connect
+                <button className="btn-bridge">
+                  <MessageCircle className="w-4 h-4" />
+                  Bridge Conversation
                 </button>
               </div>
             </div>

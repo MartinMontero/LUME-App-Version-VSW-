@@ -76,8 +76,9 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
               Explore Events
               <ArrowRight className="w-5 h-5" />
             </button>
-            <button onClick={onAuthClick} className="btn-secondary text-lg px-8 py-4">
-              Join Community
+            <button onClick={onAuthClick} className="btn-constellation text-lg px-8 py-4">
+              <Sparkles className="w-5 h-5" />
+              Add to Constellation
             </button>
           </div>
         </div>
