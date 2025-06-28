@@ -142,6 +142,126 @@ body {
   background-clip: text;
 }
 
+/* Natural Rhythms Sidebar */
+.natural-rhythms-sidebar {
+  background: rgba(30, 58, 95, 0.2);
+  border: 1px solid rgba(118, 146, 183, 0.2);
+  border-radius: 16px;
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.rhythm-indicator {
+  background: rgba(78, 205, 196, 0.1);
+  border-radius: 8px;
+  padding: 0.75rem;
+  transition: all var(--transition-normal);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.rhythm-indicator:hover {
+  background: rgba(78, 205, 196, 0.2);
+  transform: translateX(5px);
+}
+
+.rhythm-indicator.rhythm-active {
+  border: 1px solid var(--lume-glow);
+  background: rgba(78, 205, 196, 0.15);
+  box-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
+}
+
+.rhythm-emoji {
+  transition: transform var(--transition-normal);
+  filter: drop-shadow(0 0 8px rgba(78, 205, 196, 0.3));
+}
+
+.rhythm-indicator:hover .rhythm-emoji {
+  transform: scale(1.1);
+}
+
+.rhythm-indicator.rhythm-active .rhythm-emoji {
+  animation: rhythm-glow 2s ease-in-out infinite;
+}
+
+.rhythm-pulse {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(78, 205, 196, 0.2), transparent);
+  animation: rhythm-pulse 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.rhythm-energy-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(118, 146, 183, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.rhythm-energy-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--lume-glow), var(--lume-warm));
+  border-radius: 2px;
+  transition: width var(--transition-slow);
+  position: relative;
+}
+
+.rhythm-energy-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 20px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3));
+  animation: energy-shimmer 2s ease-in-out infinite;
+}
+
+@keyframes rhythm-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px rgba(78, 205, 196, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 16px rgba(78, 205, 196, 0.6));
+  }
+}
+
+@keyframes rhythm-pulse {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes energy-shimmer {
+  0% {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+}
+
 /* Luminous Node Styles */
 .luminous-node {
   background: radial-gradient(circle, var(--lume-light), transparent);
@@ -518,6 +638,14 @@ body {
   .btn-secondary {
     padding: var(--space-3) var(--space-5);
     font-size: var(--text-sm);
+  }
+  
+  .natural-rhythms-sidebar {
+    padding: 1rem;
+  }
+  
+  .rhythm-indicator {
+    padding: 0.5rem;
   }
 }
 
