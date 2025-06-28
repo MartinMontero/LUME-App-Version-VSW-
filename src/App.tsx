@@ -21,17 +21,17 @@ function App() {
 
   if (!isLoaded || loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-neutral-50 to-white">
+      <div className="flex items-center justify-center min-h-screen bg-lume-deep">
         <div className="text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-6 animate-pulse">
+          <div className="w-16 h-16 gradient-aurora rounded-2xl flex items-center justify-center mx-auto mb-6 animate-pulse">
             <div className="w-8 h-8 bg-white rounded-lg"></div>
           </div>
-          <h3 className="text-xl font-display font-semibold text-neutral-800 mb-2">
-            Lume
+          <h3 className="text-xl font-display font-semibold text-white mb-2">
+            LUME
           </h3>
-          <p className="text-neutral-600">Loading your experience...</p>
-          <div className="mt-6 w-48 h-1 bg-neutral-200 rounded-full mx-auto overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-orange-500 to-orange-600 rounded-full animate-pulse"></div>
+          <p className="text-lume-light opacity-80">Where boundaries dissolve into brilliance...</p>
+          <div className="mt-6 w-48 h-1 bg-lume-ocean rounded-full mx-auto overflow-hidden">
+            <div className="h-full gradient-aurora rounded-full animate-pulse"></div>
           </div>
         </div>
       </div>
@@ -49,28 +49,28 @@ function App() {
         <Approach />
       </main>
       
-      <footer className="bg-neutral-800 text-white py-16 px-6">
+      <footer className="bg-lume-deep border-t border-lume-ocean/50 text-white py-16 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
             <div className="md:col-span-2">
               <div className="flex items-center space-x-3 mb-6">
-                <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 gradient-aurora rounded-xl flex items-center justify-center">
                   <div className="w-6 h-6 bg-white rounded-lg"></div>
                 </div>
-                <div className="font-display text-xl">Lume</div>
+                <div className="font-display text-xl">LUME</div>
               </div>
-              <p className="text-neutral-300 leading-relaxed mb-6 max-w-md">
-                Building the future of entrepreneurship, one meaningful connection at a time. 
-                Join Vancouver's most innovative startup community.
+              <p className="text-lume-light leading-relaxed mb-6 max-w-md opacity-80">
+                Where boundaries dissolve into brilliance. Building the future of entrepreneurship, 
+                one meaningful connection at a time. Join Vancouver's most innovative startup community.
               </p>
               <div className="flex space-x-4">
-                <button className="btn-ghost text-white hover:bg-neutral-700">
+                <button className="btn-ghost text-white hover:bg-lume-ocean/50">
                   Twitter
                 </button>
-                <button className="btn-ghost text-white hover:bg-neutral-700">
+                <button className="btn-ghost text-white hover:bg-lume-ocean/50">
                   LinkedIn
                 </button>
-                <button className="btn-ghost text-white hover:bg-neutral-700">
+                <button className="btn-ghost text-white hover:bg-lume-ocean/50">
                   Instagram
                 </button>
               </div>
@@ -78,7 +78,7 @@ function App() {
             
             <div>
               <h4 className="font-display font-semibold mb-4">Platform</h4>
-              <ul className="space-y-3 text-neutral-300">
+              <ul className="space-y-3 text-lume-light opacity-80">
                 <li><a href="#" className="hover:text-white transition-colors">Events</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Networking</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Community</a></li>
@@ -88,7 +88,7 @@ function App() {
             
             <div>
               <h4 className="font-display font-semibold mb-4">Support</h4>
-              <ul className="space-y-3 text-neutral-300">
+              <ul className="space-y-3 text-lume-light opacity-80">
                 <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Privacy</a></li>
@@ -97,9 +97,9 @@ function App() {
             </div>
           </div>
           
-          <div className="border-t border-neutral-700 pt-8 text-center">
-            <p className="text-neutral-400">
-              &copy; 2025 Lume. Crafted with care for meaningful connections.
+          <div className="border-t border-lume-ocean/50 pt-8 text-center">
+            <p className="text-lume-light opacity-60">
+              &copy; 2025 LUME. Where boundaries dissolve into brilliance.
             </p>
           </div>
         </div>

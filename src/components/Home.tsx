@@ -7,9 +7,9 @@ interface HomeProps {
 
 export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
   const stats = [
-    { icon: Calendar, value: '50+', label: 'Events', color: 'from-orange-500 to-red-500' },
-    { icon: Users, value: '1500+', label: 'Attendees', color: 'from-blue-500 to-indigo-500' },
-    { icon: Mic, value: '70+', label: 'Speakers', color: 'from-green-500 to-emerald-500' }
+    { icon: Calendar, value: '50+', label: 'Events', color: 'from-lume-glow to-lume-soft' },
+    { icon: Users, value: '1500+', label: 'Attendees', color: 'from-lume-warm to-lume-spark' },
+    { icon: Mic, value: '70+', label: 'Speakers', color: 'from-lume-soft to-lume-glow' }
   ];
 
   const features = [
@@ -45,28 +45,28 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
   };
 
   return (
-    <section id="home" className="min-h-screen flex flex-col justify-center px-6 py-20 relative overflow-hidden">
+    <section id="home" className="min-h-screen flex flex-col justify-center px-6 py-20 relative overflow-hidden bg-pattern">
       {/* Background Elements */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
-        <div className="absolute top-40 right-10 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-green-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse" style={{ animationDelay: '4s' }}></div>
+        <div className="absolute top-20 left-10 w-72 h-72 bg-lume-glow/20 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
+        <div className="absolute top-40 right-10 w-72 h-72 bg-lume-warm/20 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-lume-soft/20 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse" style={{ animationDelay: '4s' }}></div>
       </div>
 
       <div className="max-w-7xl mx-auto text-center">
         {/* Hero Content */}
         <div className="mb-16 animate-slide-up">
-          <div className="inline-flex items-center px-4 py-2 bg-orange-100 rounded-full text-orange-600 text-sm font-medium mb-6">
+          <div className="inline-flex items-center px-4 py-2 bg-lume-ocean/50 backdrop-blur-sm rounded-full text-lume-glow text-sm font-medium mb-6 border border-lume-glow/20">
             <Sparkles className="w-4 h-4 mr-2" />
             Vancouver Startup Week 2025
           </div>
           
-          <h1 className="text-5xl md:text-7xl font-display font-bold text-neutral-800 mb-6 leading-tight">
-            Connect & Grow
-            <span className="block text-gradient">Together</span>
+          <h1 className="text-5xl md:text-7xl font-display font-bold text-white mb-6 leading-tight">
+            Where boundaries
+            <span className="block gradient-text">dissolve into brilliance</span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-neutral-600 max-w-4xl mx-auto mb-12 leading-relaxed">
+          <p className="text-xl md:text-2xl text-lume-light max-w-4xl mx-auto mb-12 leading-relaxed opacity-90">
             Your intelligent companion for Vancouver Startup Week. Discover breakthrough opportunities, 
             connect with fellow entrepreneurs, and build the future together.
           </p>
@@ -91,10 +91,10 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
                 <div className={`w-16 h-16 bg-gradient-to-br ${stat.color} rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg`}>
                   <Icon className="w-8 h-8 text-white" />
                 </div>
-                <div className="text-4xl font-display font-bold text-neutral-800 mb-2">
+                <div className="text-4xl font-display font-bold text-white mb-2">
                   {stat.value}
                 </div>
-                <div className="text-neutral-600 font-medium">
+                <div className="text-lume-light font-medium opacity-80">
                   {stat.label}
                 </div>
               </div>
@@ -108,13 +108,13 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
             const Icon = feature.icon;
             return (
               <div key={index} className="card-floating p-8 text-center">
-                <div className="w-12 h-12 bg-neutral-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <Icon className="w-6 h-6 text-neutral-600" />
+                <div className="w-12 h-12 bg-lume-ocean/50 rounded-xl flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+                  <Icon className="w-6 h-6 text-lume-glow" />
                 </div>
-                <h3 className="text-xl font-display font-semibold text-neutral-800 mb-3">
+                <h3 className="text-xl font-display font-semibold text-white mb-3">
                   {feature.title}
                 </h3>
-                <p className="text-neutral-600 leading-relaxed">
+                <p className="text-lume-light leading-relaxed opacity-80">
                   {feature.description}
                 </p>
               </div>

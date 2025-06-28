@@ -33,10 +33,10 @@ export const Schedule: React.FC = () => {
   const filters: TrackFilter[] = ['All', 'Tech & Innovation', 'Funding & Investment', 'Growth & Marketing', 'Social Impact'];
 
   const trackColors = {
-    'Tech & Innovation': '#3B82F6',
-    'Funding & Investment': '#10B981',
-    'Growth & Marketing': '#F59E0B',
-    'Social Impact': '#EF4444'
+    'Tech & Innovation': 'var(--lume-glow)',
+    'Funding & Investment': 'var(--lume-soft)',
+    'Growth & Marketing': 'var(--lume-warm)',
+    'Social Impact': 'var(--lume-spark)'
   };
 
   useEffect(() => {
@@ -98,9 +98,10 @@ export const Schedule: React.FC = () => {
                   labels: {
                     padding: 20,
                     usePointStyle: true,
+                    color: 'var(--lume-light)',
                     font: {
                       size: 12,
-                      family: 'SF Pro Text'
+                      family: 'Inter'
                     }
                   }
                 }
@@ -182,13 +183,13 @@ export const Schedule: React.FC = () => {
 
   if (loading) {
     return (
-      <section id="schedule" className="py-24 px-6 bg-gradient-to-br from-neutral-50 to-white">
+      <section id="schedule" className="py-24 px-6 gradient-ocean">
         <div className="max-w-7xl mx-auto">
           <div className="text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 animate-pulse">
+            <div className="w-16 h-16 gradient-aurora rounded-2xl flex items-center justify-center mx-auto mb-6 animate-pulse">
               <Calendar className="w-8 h-8 text-white" />
             </div>
-            <p className="text-neutral-600">Loading events...</p>
+            <p className="text-lume-light">Loading events...</p>
           </div>
         </div>
       </section>
@@ -196,19 +197,19 @@ export const Schedule: React.FC = () => {
   }
 
   return (
-    <section id="schedule" className="py-24 px-6 bg-gradient-to-br from-neutral-50 to-white">
+    <section id="schedule" className="py-24 px-6 gradient-ocean">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16 animate-slide-up">
-          <div className="inline-flex items-center px-4 py-2 bg-blue-100 rounded-full text-blue-600 text-sm font-medium mb-6">
+          <div className="inline-flex items-center px-4 py-2 bg-lume-glow/20 backdrop-blur-sm rounded-full text-lume-glow text-sm font-medium mb-6 border border-lume-glow/20">
             <Calendar className="w-4 h-4 mr-2" />
             Smart Schedule
           </div>
-          <h2 className="text-4xl md:text-5xl font-display font-bold text-neutral-800 mb-6">
+          <h2 className="text-4xl md:text-5xl font-display font-bold text-white mb-6">
             Your Personalized
-            <span className="block text-gradient">Event Journey</span>
+            <span className="block gradient-text">Event Journey</span>
           </h2>
-          <p className="text-xl text-neutral-600 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-lume-light max-w-3xl mx-auto leading-relaxed opacity-90">
             Navigate the week's events with intelligent filtering, save your favorites, 
             and never miss the sessions that matter to your startup journey.
           </p>
@@ -217,7 +218,7 @@ export const Schedule: React.FC = () => {
         {/* Stats & Chart */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
           <div className="card-elevated p-8 animate-slide-up" style={{ animationDelay: '0.1s' }}>
-            <h3 className="text-2xl font-display font-semibold text-neutral-800 mb-6">
+            <h3 className="text-2xl font-display font-semibold text-white mb-6">
               Events by Track
             </h3>
             <div className="chart-container">
@@ -226,21 +227,21 @@ export const Schedule: React.FC = () => {
           </div>
 
           <div className="card-elevated p-8 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-            <h3 className="text-2xl font-display font-semibold text-neutral-800 mb-8">
+            <h3 className="text-2xl font-display font-semibold text-white mb-8">
               Quick Insights
             </h3>
             <div className="space-y-6">
-              <div className="flex items-center justify-between p-4 bg-neutral-50 rounded-xl">
-                <span className="text-neutral-600 font-medium">Total Events</span>
-                <span className="text-2xl font-display font-bold text-neutral-800">{events.length}</span>
+              <div className="flex items-center justify-between p-4 bg-lume-ocean/30 rounded-xl backdrop-blur-sm">
+                <span className="text-lume-light font-medium">Total Events</span>
+                <span className="text-2xl font-display font-bold text-white">{events.length}</span>
               </div>
-              <div className="flex items-center justify-between p-4 bg-neutral-50 rounded-xl">
-                <span className="text-neutral-600 font-medium">Active Tracks</span>
-                <span className="text-2xl font-display font-bold text-neutral-800">{Object.keys(trackColors).length}</span>
+              <div className="flex items-center justify-between p-4 bg-lume-ocean/30 rounded-xl backdrop-blur-sm">
+                <span className="text-lume-light font-medium">Active Tracks</span>
+                <span className="text-2xl font-display font-bold text-white">{Object.keys(trackColors).length}</span>
               </div>
-              <div className="flex items-center justify-between p-4 bg-neutral-50 rounded-xl">
-                <span className="text-neutral-600 font-medium">Saved Events</span>
-                <span className="text-2xl font-display font-bold text-orange-600">{savedEvents.size}</span>
+              <div className="flex items-center justify-between p-4 bg-lume-ocean/30 rounded-xl backdrop-blur-sm">
+                <span className="text-lume-light font-medium">Saved Events</span>
+                <span className="text-2xl font-display font-bold gradient-text">{savedEvents.size}</span>
               </div>
             </div>
           </div>
@@ -251,7 +252,7 @@ export const Schedule: React.FC = () => {
           <div className="flex flex-col lg:flex-row gap-6 items-center">
             {/* Search */}
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400 w-5 h-5" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-lume-mist w-5 h-5" />
               <input
                 type="text"
                 placeholder="Search events, speakers, topics..."
@@ -263,15 +264,15 @@ export const Schedule: React.FC = () => {
 
             {/* Filters */}
             <div className="flex items-center gap-2 flex-wrap">
-              <Filter className="w-5 h-5 text-neutral-500 mr-2" />
+              <Filter className="w-5 h-5 text-lume-mist mr-2" />
               {filters.map(filter => (
                 <button
                   key={filter}
                   onClick={() => setActiveFilter(filter)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                     activeFilter === filter 
-                      ? 'bg-orange-500 text-white shadow-lg' 
-                      : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+                      ? 'gradient-aurora text-white shadow-lg' 
+                      : 'bg-lume-ocean/30 text-lume-light hover:bg-lume-ocean/50'
                   }`}
                 >
                   {filter}
@@ -303,47 +304,47 @@ export const Schedule: React.FC = () => {
                         onClick={() => toggleSaveEvent(event.id)}
                         className={`p-1 rounded-full transition-colors ${
                           savedEvents.has(event.id) 
-                            ? 'text-orange-500 hover:text-orange-600' 
-                            : 'text-neutral-400 hover:text-neutral-600'
+                            ? 'text-lume-warm hover:text-lume-warm/80' 
+                            : 'text-lume-mist hover:text-lume-light'
                         }`}
                       >
                         <Star className={`w-5 h-5 ${savedEvents.has(event.id) ? 'fill-current' : ''}`} />
                       </button>
                     )}
                   </div>
-                  <h4 className="text-xl font-display font-semibold text-neutral-800 mb-3 leading-tight">
+                  <h4 className="text-xl font-display font-semibold text-white mb-3 leading-tight">
                     {event.title}
                   </h4>
                 </div>
               </div>
               
               <div className="space-y-3 mb-4">
-                <div className="flex items-center text-neutral-600">
-                  <Clock className="w-4 h-4 mr-3 text-neutral-400" />
+                <div className="flex items-center text-lume-light">
+                  <Clock className="w-4 h-4 mr-3 text-lume-mist" />
                   <span className="font-medium">
                     {formatDate(event.start_time)} • {formatTime(event.start_time)} - {formatTime(event.end_time)}
                   </span>
                 </div>
-                <div className="flex items-center text-neutral-600">
-                  <MapPin className="w-4 h-4 mr-3 text-neutral-400" />
+                <div className="flex items-center text-lume-light">
+                  <MapPin className="w-4 h-4 mr-3 text-lume-mist" />
                   <span>{event.location}</span>
                 </div>
                 {event.speakers && event.speakers.length > 0 && (
-                  <div className="flex items-center text-neutral-600">
-                    <Users className="w-4 h-4 mr-3 text-neutral-400" />
+                  <div className="flex items-center text-lume-light">
+                    <Users className="w-4 h-4 mr-3 text-lume-mist" />
                     <span>{event.speakers.join(', ')}</span>
                   </div>
                 )}
               </div>
               
               {event.description && (
-                <p className="text-neutral-600 leading-relaxed mb-4">
+                <p className="text-lume-light leading-relaxed mb-4 opacity-80">
                   {event.description}
                 </p>
               )}
               
               <div className="flex items-center justify-between">
-                <button className="btn-ghost text-orange-600 hover:bg-orange-50">
+                <button className="btn-ghost text-lume-glow hover:bg-lume-glow/10">
                   View Details
                 </button>
                 <button className="btn-secondary">
@@ -356,13 +357,13 @@ export const Schedule: React.FC = () => {
 
         {filteredEvents.length === 0 && (
           <div className="text-center py-16">
-            <div className="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="w-8 h-8 text-neutral-400" />
+            <div className="w-16 h-16 bg-lume-ocean/30 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+              <Search className="w-8 h-8 text-lume-mist" />
             </div>
-            <h3 className="text-xl font-display font-semibold text-neutral-800 mb-2">
+            <h3 className="text-xl font-display font-semibold text-white mb-2">
               No events found
             </h3>
-            <p className="text-neutral-600">
+            <p className="text-lume-light opacity-80">
               Try adjusting your search or filter criteria
             </p>
           </div>

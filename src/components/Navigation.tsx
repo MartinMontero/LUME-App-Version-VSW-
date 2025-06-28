@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Lightbulb, LogOut, User } from 'lucide-react';
+import { Menu, X, Zap, LogOut, User } from 'lucide-react';
 import { signOut } from '../lib/supabase';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 
@@ -66,11 +66,11 @@ export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => 
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
-              <Lightbulb className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 gradient-aurora rounded-xl flex items-center justify-center shadow-lg">
+              <Zap className="w-6 h-6 text-white" />
             </div>
-            <div className="font-display text-xl text-neutral-800">
-              Lume
+            <div className="font-display text-xl text-white">
+              LUME
             </div>
           </div>
 
@@ -82,8 +82,8 @@ export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => 
                 onClick={() => scrollToSection(item.id)}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                   activeSection === item.id 
-                    ? 'bg-orange-100 text-orange-600 shadow-sm' 
-                    : 'text-neutral-600 hover:text-neutral-800 hover:bg-neutral-100'
+                    ? 'bg-gradient-to-r from-lume-glow to-lume-soft text-lume-deep shadow-sm' 
+                    : 'text-lume-light hover:text-white hover:bg-lume-ocean/50'
                 }`}
               >
                 {item.label}
@@ -95,15 +95,15 @@ export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => 
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <div className="flex items-center space-x-3">
-                <div className="flex items-center space-x-2 px-3 py-2 bg-neutral-100 rounded-full">
-                  <User className="w-4 h-4 text-neutral-600" />
-                  <span className="text-sm font-medium text-neutral-700">
+                <div className="flex items-center space-x-2 px-3 py-2 bg-lume-ocean/50 rounded-full backdrop-blur-sm">
+                  <User className="w-4 h-4 text-lume-light" />
+                  <span className="text-sm font-medium text-lume-light">
                     {user.user_metadata?.full_name || user.email?.split('@')[0]}
                   </span>
                 </div>
                 <button
                   onClick={handleSignOut}
-                  className="p-2 text-neutral-600 hover:text-neutral-800 hover:bg-neutral-100 rounded-full transition-colors"
+                  className="p-2 text-lume-light hover:text-white hover:bg-lume-ocean/50 rounded-full transition-colors"
                   title="Sign out"
                 >
                   <LogOut className="w-5 h-5" />
@@ -119,9 +119,9 @@ export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-neutral-100 transition-colors"
+            className="md:hidden p-2 rounded-lg hover:bg-lume-ocean/50 transition-colors"
           >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            {isMenuOpen ? <X size={24} className="text-white" /> : <Menu size={24} className="text-white" />}
           </button>
         </div>
 
@@ -135,17 +135,17 @@ export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => 
                   onClick={() => scrollToSection(item.id)}
                   className={`block w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                     activeSection === item.id 
-                      ? 'bg-orange-100 text-orange-600' 
-                      : 'text-neutral-600 hover:bg-neutral-100'
+                      ? 'bg-gradient-to-r from-lume-glow to-lume-soft text-lume-deep' 
+                      : 'text-lume-light hover:bg-lume-ocean/50'
                   }`}
                 >
                   {item.label}
                 </button>
               ))}
-              <div className="pt-4 border-t border-neutral-200">
+              <div className="pt-4 border-t border-lume-mist/20">
                 {user ? (
                   <div className="space-y-2">
-                    <div className="px-4 py-2 text-sm text-neutral-600">
+                    <div className="px-4 py-2 text-sm text-lume-light">
                       Signed in as {user.user_metadata?.full_name || user.email?.split('@')[0]}
                     </div>
                     <button
