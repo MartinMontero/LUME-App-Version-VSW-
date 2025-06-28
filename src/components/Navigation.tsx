@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Zap, LogOut, User } from 'lucide-react';
+import { Menu, X, Lightbulb, LogOut, User } from 'lucide-react';
 import { signOut } from '../lib/supabase';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import { triggerHaptic, getTimeBasedGreeting } from '../utils';
@@ -96,7 +96,7 @@ export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => 
       }}>
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center justify-between h-20">
-            {/* Enhanced Logo */}
+            {/* Enhanced Logo with Lightbulb */}
             <div className="flex items-center space-x-6">
               <button 
                 onClick={() => scrollToSection('home')}
@@ -104,7 +104,7 @@ export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => 
                 aria-label="Go to home"
               >
                 <div className="w-10 h-10 gradient-aurora rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
-                  <Zap className="w-6 h-6 text-white" />
+                  <Lightbulb className="w-6 h-6 text-white" />
                 </div>
                 <div 
                   className="gradient-text font-light tracking-[0.1em] group-hover:scale-105 transition-transform duration-300"
@@ -182,7 +182,7 @@ export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => 
                   className="btn-constellation"
                   aria-label="Join the LUME constellation"
                 >
-                  <Zap className="w-4 h-4" />
+                  <Lightbulb className="w-4 h-4" />
                   Join Constellation
                 </button>
               )}
@@ -289,7 +289,7 @@ export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => 
                   className="btn-constellation w-full justify-center min-h-[56px] group"
                   aria-label="Join the LUME constellation"
                 >
-                  <Zap className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  <Lightbulb className="w-5 h-5 group-hover:scale-110 transition-transform" />
                   Join Constellation
                 </button>
               )}
