@@ -133,19 +133,19 @@ export const Community: React.FC = () => {
   };
 
   return (
-    <section id="community" className="py-24 px-6 bg-gradient-to-br from-neutral-50 to-white">
+    <section id="community" className="py-24 px-6 gradient-ocean">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16 animate-slide-up">
-          <div className="inline-flex items-center px-4 py-2 bg-green-100 rounded-full text-green-600 text-sm font-medium mb-6">
+          <div className="inline-flex items-center px-4 py-2 bg-lume-soft/20 backdrop-blur-sm rounded-full text-lume-soft text-sm font-medium mb-6 border border-lume-soft/20">
             <Coffee className="w-4 h-4 mr-2" />
             Community Hub
           </div>
-          <h2 className="text-4xl md:text-5xl font-display font-bold text-neutral-800 mb-6">
+          <h2 className="text-4xl md:text-5xl font-display font-bold text-white mb-6">
             Beyond the
-            <span className="block text-gradient">Official Schedule</span>
+            <span className="block gradient-text">Official Schedule</span>
           </h2>
-          <p className="text-xl text-neutral-600 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-lume-light max-w-3xl mx-auto leading-relaxed opacity-90">
             Discover unofficial meetups, spontaneous gatherings, and community-driven events. 
             Because the best connections often happen outside the official schedule.
           </p>
@@ -154,16 +154,19 @@ export const Community: React.FC = () => {
         {/* Community Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
           {[
-            { label: 'Active Gatherings', value: gatherings.length, color: 'text-green-600' },
-            { label: 'Community Members', value: '1.2K+', color: 'text-blue-600' },
-            { label: 'Connections Made', value: '450+', color: 'text-purple-600' },
-            { label: 'Success Stories', value: '23', color: 'text-orange-600' }
+            { label: 'Active Gatherings', value: gatherings.length, color: 'text-lume-soft' },
+            { label: 'Community Members', value: '1.2K+', color: 'text-lume-glow' },
+            { label: 'Connections Made', value: '450+', color: 'text-lume-warm' },
+            { label: 'Success Stories', value: '23', color: 'text-lume-spark' }
           ].map((stat, index) => (
-            <div key={index} className="card-floating p-6 text-center animate-slide-up" style={{ animationDelay: `${index * 0.1}s` }}>
+            <div key={index} className="luminous-node p-6 text-center animate-slide-up" style={{ 
+              animationDelay: `${index * 0.1}s`,
+              background: 'radial-gradient(circle at center, rgba(30, 58, 95, 0.9), rgba(10, 22, 40, 0.8))'
+            }}>
               <div className={`text-3xl font-display font-bold ${stat.color} mb-2`}>
                 {stat.value}
               </div>
-              <div className="text-neutral-600 text-sm font-medium">
+              <div className="text-lume-light text-sm font-medium opacity-80">
                 {stat.label}
               </div>
             </div>
@@ -174,10 +177,10 @@ export const Community: React.FC = () => {
         <div className="card-elevated p-8 status-live animate-slide-up" style={{ animationDelay: '0.4s' }}>
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h3 className="text-2xl font-display font-semibold text-neutral-800 mb-2">
+              <h3 className="text-2xl font-display font-semibold text-white mb-2">
                 Informal Gatherings
               </h3>
-              <p className="text-neutral-600">
+              <p className="text-lume-light opacity-80">
                 Join spontaneous meetups and community-organized events
               </p>
             </div>
@@ -191,66 +194,76 @@ export const Community: React.FC = () => {
           
           {loading ? (
             <div className="text-center py-12">
-              <div className="w-12 h-12 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-                <Coffee className="w-6 h-6 text-neutral-400" />
+              <div className="w-12 h-12 bg-lume-ocean/30 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse backdrop-blur-sm">
+                <Coffee className="w-6 h-6 text-lume-mist" />
               </div>
-              <p className="text-neutral-600">Loading gatherings...</p>
+              <p className="text-lume-light opacity-80">Loading gatherings...</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {gatherings.map((gathering, index) => (
                 <div 
                   key={gathering.id} 
-                  className="card-floating p-6 interactive animate-scale-in"
-                  style={{ animationDelay: `${index * 0.1}s` }}
+                  className="luminous-node p-6 animate-scale-in relative"
+                  style={{ 
+                    animationDelay: `${index * 0.1}s`,
+                    background: 'radial-gradient(circle at center, rgba(30, 58, 95, 0.9), rgba(10, 22, 40, 0.8))'
+                  }}
                 >
                   <div className="flex items-start justify-between mb-4">
-                    <h4 className="font-display font-semibold text-neutral-800 text-lg leading-tight flex-1">
-                      {gathering.name}
-                    </h4>
-                    <span className="text-xs text-neutral-500 ml-4 whitespace-nowrap">
+                    <div className="flex items-center gap-3">
+                      <div className="luminous-avatar w-10 h-10 flex items-center justify-center text-white font-bold text-sm">
+                        {gathering.profiles?.full_name?.charAt(0) || 'A'}
+                      </div>
+                      <div>
+                        <h4 className="font-display font-semibold text-white text-lg leading-tight">
+                          {gathering.name}
+                        </h4>
+                      </div>
+                    </div>
+                    <span className="text-xs text-lume-mist whitespace-nowrap">
                       {formatTime(gathering.created_at)}
                     </span>
                   </div>
                   
                   <div className="space-y-3 mb-4">
-                    <div className="flex items-center text-neutral-600 text-sm">
-                      <MapPin className="w-4 h-4 mr-3 text-neutral-400" />
+                    <div className="flex items-center text-lume-light text-sm opacity-90">
+                      <MapPin className="w-4 h-4 mr-3 text-lume-mist" />
                       {gathering.location}
                     </div>
-                    <div className="flex items-center text-neutral-600 text-sm">
-                      <Clock className="w-4 h-4 mr-3 text-neutral-400" />
+                    <div className="flex items-center text-lume-light text-sm opacity-90">
+                      <Clock className="w-4 h-4 mr-3 text-lume-mist" />
                       {formatScheduledTime(gathering.scheduled_time)}
                     </div>
-                    <div className="flex items-center text-neutral-600 text-sm">
-                      <User className="w-4 h-4 mr-3 text-neutral-400" />
+                    <div className="flex items-center text-lume-light text-sm opacity-90">
+                      <User className="w-4 h-4 mr-3 text-lume-mist" />
                       Organized by {gathering.profiles?.full_name || 'Anonymous'}
                       {gathering.profiles?.company && (
                         <span className="ml-1">• {gathering.profiles.company}</span>
                       )}
                     </div>
-                    <div className="flex items-center text-neutral-600 text-sm">
-                      <Users className="w-4 h-4 mr-3 text-neutral-400" />
+                    <div className="flex items-center text-lume-light text-sm opacity-90">
+                      <Users className="w-4 h-4 mr-3 text-lume-mist" />
                       {gathering.attendee_count} attending
                       {gathering.max_attendees && ` / ${gathering.max_attendees} max`}
                     </div>
                   </div>
                   
-                  <p className="text-neutral-600 leading-relaxed mb-6 text-sm">
+                  <p className="text-lume-light leading-relaxed mb-6 text-sm opacity-90">
                     {gathering.description}
                   </p>
                   
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-4">
-                      <button className="flex items-center gap-1 text-neutral-500 hover:text-red-500 transition-colors">
+                      <button className="flex items-center gap-1 text-lume-mist hover:text-lume-spark transition-colors">
                         <Heart className="w-4 h-4" />
                         <span className="text-xs">12</span>
                       </button>
-                      <button className="flex items-center gap-1 text-neutral-500 hover:text-blue-500 transition-colors">
+                      <button className="flex items-center gap-1 text-lume-mist hover:text-lume-glow transition-colors">
                         <MessageSquare className="w-4 h-4" />
                         <span className="text-xs">5</span>
                       </button>
-                      <button className="text-neutral-500 hover:text-green-500 transition-colors">
+                      <button className="text-lume-mist hover:text-lume-soft transition-colors">
                         <Share2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -263,6 +276,11 @@ export const Community: React.FC = () => {
                   >
                     Join Gathering
                   </button>
+                  
+                  {/* Light bridges connecting to nearby gatherings */}
+                  {index % 3 !== 2 && (
+                    <div className="absolute top-1/2 -right-3 w-6 h-0.5 light-bridge"></div>
+                  )}
                 </div>
               ))}
             </div>
@@ -272,7 +290,7 @@ export const Community: React.FC = () => {
         <Modal isOpen={isGatheringModalOpen} onClose={closeGatheringModal} title="Create a Gathering">
           <form onSubmit={handleGatheringSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-2">
+              <label className="block text-sm font-medium text-lume-light mb-2">
                 Gathering Name
               </label>
               <input
@@ -286,7 +304,7 @@ export const Community: React.FC = () => {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-2">
+              <label className="block text-sm font-medium text-lume-light mb-2">
                 Location
               </label>
               <input
@@ -301,7 +319,7 @@ export const Community: React.FC = () => {
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                <label className="block text-sm font-medium text-lume-light mb-2">
                   Date & Time
                 </label>
                 <input
@@ -314,7 +332,7 @@ export const Community: React.FC = () => {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                <label className="block text-sm font-medium text-lume-light mb-2">
                   Max Attendees (Optional)
                 </label>
                 <input
@@ -329,7 +347,7 @@ export const Community: React.FC = () => {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-2">
+              <label className="block text-sm font-medium text-lume-light mb-2">
                 Description
               </label>
               <textarea

@@ -51,11 +51,11 @@ export const NetworkingSignals: React.FC = () => {
   const { isOpen: isSignalModalOpen, openModal: openSignalModal, closeModal: closeSignalModal } = useModal();
 
   const signalTypes = [
-    { value: 'coffee', label: 'Coffee Chat', icon: Coffee, color: 'from-amber-500 to-orange-500' },
-    { value: 'lunch', label: 'Lunch Meeting', icon: Users, color: 'from-green-500 to-emerald-500' },
-    { value: 'cowork', label: 'Co-working', icon: MapPin, color: 'from-blue-500 to-indigo-500' },
-    { value: 'walk', label: 'Walking Meeting', icon: Clock, color: 'from-purple-500 to-pink-500' },
-    { value: 'chat', label: 'Quick Chat', icon: MessageCircle, color: 'from-red-500 to-rose-500' }
+    { value: 'coffee', label: 'Coffee Chat', icon: Coffee, color: 'from-lume-warm to-lume-spark' },
+    { value: 'lunch', label: 'Lunch Meeting', icon: Users, color: 'from-lume-soft to-lume-glow' },
+    { value: 'cowork', label: 'Co-working', icon: MapPin, color: 'from-lume-glow to-lume-soft' },
+    { value: 'walk', label: 'Walking Meeting', icon: Clock, color: 'from-lume-spark to-lume-warm' },
+    { value: 'chat', label: 'Quick Chat', icon: MessageCircle, color: 'from-lume-glow to-lume-warm' }
   ];
 
   useEffect(() => {
@@ -187,10 +187,10 @@ export const NetworkingSignals: React.FC = () => {
   if (loading) {
     return (
       <div className="text-center py-12">
-        <div className="w-12 h-12 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-          <Coffee className="w-6 h-6 text-neutral-400" />
+        <div className="w-12 h-12 bg-lume-ocean/30 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse backdrop-blur-sm">
+          <Coffee className="w-6 h-6 text-lume-mist" />
         </div>
-        <p className="text-neutral-600">Loading networking signals...</p>
+        <p className="text-lume-light opacity-80">Loading networking signals...</p>
       </div>
     );
   }
@@ -200,10 +200,10 @@ export const NetworkingSignals: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-2xl font-display font-semibold text-neutral-800 mb-2">
+          <h3 className="text-2xl font-display font-semibold text-white mb-2">
             Live Networking Signals
           </h3>
-          <p className="text-neutral-600">
+          <p className="text-lume-light opacity-80">
             Broadcast your availability and connect with others in real-time
           </p>
         </div>
@@ -217,24 +217,35 @@ export const NetworkingSignals: React.FC = () => {
 
       {/* Nearby Users */}
       {nearbyUsers.length > 0 && (
-        <div className="card-floating p-6">
-          <h4 className="font-display font-semibold text-neutral-800 mb-4 flex items-center">
-            <MapPin className="w-5 h-5 mr-2 text-green-500" />
+        <div className="luminous-node p-6" style={{ background: 'radial-gradient(circle at center, rgba(30, 58, 95, 0.9), rgba(10, 22, 40, 0.8))' }}>
+          <h4 className="font-display font-semibold text-white mb-4 flex items-center">
+            <MapPin className="w-5 h-5 mr-2 text-lume-soft" />
             Nearby Users ({nearbyUsers.length})
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {nearbyUsers.map((nearbyUser) => (
-              <div key={nearbyUser.user_id} className="p-4 bg-neutral-50 rounded-lg">
-                <div className="font-medium text-neutral-800">
-                  {nearbyUser.full_name || 'Anonymous'}
+            {nearbyUsers.map((nearbyUser, index) => (
+              <div key={nearbyUser.user_id} className="luminous-node p-4" style={{ background: 'radial-gradient(circle at center, rgba(78, 205, 196, 0.1), rgba(30, 58, 95, 0.8))' }}>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="luminous-avatar w-10 h-10 flex items-center justify-center text-white font-bold text-sm">
+                    {nearbyUser.full_name?.charAt(0) || 'A'}
+                  </div>
+                  <div>
+                    <div className="font-medium text-white">
+                      {nearbyUser.full_name || 'Anonymous'}
+                    </div>
+                    {nearbyUser.company && (
+                      <div className="text-sm text-lume-light opacity-80">{nearbyUser.company}</div>
+                    )}
+                  </div>
                 </div>
-                {nearbyUser.company && (
-                  <div className="text-sm text-neutral-600">{nearbyUser.company}</div>
-                )}
-                <div className="text-xs text-neutral-500 mt-1">
+                <div className="text-xs text-lume-mist">
                   {nearbyUser.distance_km}km away
                   {nearbyUser.venue && ` • ${nearbyUser.venue}`}
                 </div>
+                {/* Light bridge to next user */}
+                {index < nearbyUsers.length - 1 && index % 3 !== 2 && (
+                  <div className="absolute top-1/2 -right-2 w-4 h-0.5 light-bridge"></div>
+                )}
               </div>
             ))}
           </div>
@@ -250,50 +261,63 @@ export const NetworkingSignals: React.FC = () => {
           return (
             <div 
               key={signal.id} 
-              className="card-floating p-6 interactive animate-scale-in"
-              style={{ animationDelay: `${index * 0.1}s` }}
+              className="luminous-node p-6 animate-scale-in relative"
+              style={{ 
+                animationDelay: `${index * 0.1}s`,
+                background: 'radial-gradient(circle at center, rgba(30, 58, 95, 0.9), rgba(10, 22, 40, 0.8))'
+              }}
             >
               <div className="flex items-start justify-between mb-4">
-                <div className={`w-12 h-12 bg-gradient-to-br ${signalType.color} rounded-xl flex items-center justify-center`}>
+                <div className={`w-12 h-12 bg-gradient-to-br ${signalType.color} rounded-xl flex items-center justify-center shadow-lg`}>
                   <Icon className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-xs text-neutral-500">
+                <span className="text-xs text-lume-mist">
                   {formatTimeRemaining(signal.expires_at)}
                 </span>
               </div>
               
-              <h4 className="font-display font-semibold text-neutral-800 mb-2">
+              <h4 className="font-display font-semibold text-white mb-2">
                 {signalType.label}
               </h4>
               
-              <p className="text-neutral-600 text-sm mb-4 leading-relaxed">
+              <p className="text-lume-light text-sm mb-4 leading-relaxed opacity-90">
                 {signal.message}
               </p>
               
               {signal.location && (
-                <div className="flex items-center text-neutral-500 text-sm mb-4">
-                  <MapPin className="w-4 h-4 mr-2" />
+                <div className="flex items-center text-lume-light text-sm mb-4 opacity-80">
+                  <MapPin className="w-4 h-4 mr-2 text-lume-mist" />
                   {signal.location}
                 </div>
               )}
               
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-neutral-600">
-                  by {signal.profiles?.full_name || 'Anonymous'}
-                  {signal.profiles?.company && (
-                    <span className="text-neutral-400"> • {signal.profiles.company}</span>
-                  )}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="luminous-avatar w-8 h-8 flex items-center justify-center text-white font-bold text-xs">
+                    {signal.profiles?.full_name?.charAt(0) || 'A'}
+                  </div>
+                  <div className="text-sm text-lume-light opacity-80">
+                    {signal.profiles?.full_name || 'Anonymous'}
+                    {signal.profiles?.company && (
+                      <span className="text-lume-mist"> • {signal.profiles.company}</span>
+                    )}
+                  </div>
                 </div>
-                
-                {user && user.id !== signal.user_id && (
-                  <button 
-                    onClick={() => handleRespondToSignal(signal.id, 'I\'m interested!')}
-                    className="btn-secondary text-sm px-3 py-1"
-                  >
-                    Respond
-                  </button>
-                )}
               </div>
+              
+              {user && user.id !== signal.user_id && (
+                <button 
+                  onClick={() => handleRespondToSignal(signal.id, 'I\'m interested!')}
+                  className="btn-secondary text-sm px-4 py-2 w-full"
+                >
+                  Respond
+                </button>
+              )}
+              
+              {/* Light bridges connecting to nearby signals */}
+              {index % 3 !== 2 && (
+                <div className="absolute top-1/2 -right-3 w-6 h-0.5 light-bridge"></div>
+              )}
             </div>
           );
         })}
@@ -301,13 +325,13 @@ export const NetworkingSignals: React.FC = () => {
 
       {signals.length === 0 && (
         <div className="text-center py-16">
-          <div className="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Coffee className="w-8 h-8 text-neutral-400" />
+          <div className="w-16 h-16 bg-lume-ocean/30 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+            <Coffee className="w-8 h-8 text-lume-mist" />
           </div>
-          <h3 className="text-xl font-display font-semibold text-neutral-800 mb-2">
+          <h3 className="text-xl font-display font-semibold text-white mb-2">
             No active signals
           </h3>
-          <p className="text-neutral-600 mb-6">
+          <p className="text-lume-light mb-6 opacity-80">
             Be the first to broadcast your availability for networking
           </p>
           {user && (
@@ -323,7 +347,7 @@ export const NetworkingSignals: React.FC = () => {
       <Modal isOpen={isSignalModalOpen} onClose={closeSignalModal} title="Broadcast Networking Signal">
         <form onSubmit={handleSignalSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-3">
+            <label className="block text-sm font-medium text-lume-light mb-3">
               Signal Type
             </label>
             <div className="grid grid-cols-2 gap-3">
@@ -336,14 +360,14 @@ export const NetworkingSignals: React.FC = () => {
                     onClick={() => setSignalForm({...signalForm, signal_type: type.value})}
                     className={`p-4 rounded-xl border-2 transition-all ${
                       signalForm.signal_type === type.value
-                        ? 'border-orange-500 bg-orange-50'
-                        : 'border-neutral-200 hover:border-neutral-300'
+                        ? 'border-lume-glow bg-lume-glow/10'
+                        : 'border-lume-ocean/50 hover:border-lume-mist/50'
                     }`}
                   >
                     <div className={`w-8 h-8 bg-gradient-to-br ${type.color} rounded-lg flex items-center justify-center mx-auto mb-2`}>
                       <Icon className="w-4 h-4 text-white" />
                     </div>
-                    <div className="text-sm font-medium text-neutral-800">
+                    <div className="text-sm font-medium text-white">
                       {type.label}
                     </div>
                   </button>
@@ -353,7 +377,7 @@ export const NetworkingSignals: React.FC = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
+            <label className="block text-sm font-medium text-lume-light mb-2">
               Message
             </label>
             <textarea
@@ -366,7 +390,7 @@ export const NetworkingSignals: React.FC = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
+            <label className="block text-sm font-medium text-lume-light mb-2">
               Location (Optional)
             </label>
             <input
@@ -379,7 +403,7 @@ export const NetworkingSignals: React.FC = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
+            <label className="block text-sm font-medium text-lume-light mb-2">
               Duration
             </label>
             <select

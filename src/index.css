@@ -142,6 +142,66 @@ body {
   background-clip: text;
 }
 
+/* Luminous Node Styles */
+.luminous-node {
+  background: radial-gradient(circle, var(--lume-light), transparent);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: none;
+  transition: all var(--transition-normal);
+  animation: breathe 4s ease-in-out infinite;
+}
+
+.luminous-node:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(78, 205, 196, 0.5);
+}
+
+.luminous-avatar {
+  background: linear-gradient(135deg, var(--lume-glow), var(--lume-warm));
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
+  transition: all var(--transition-normal);
+}
+
+.luminous-avatar:hover {
+  box-shadow: 0 0 40px rgba(78, 205, 196, 0.6);
+  transform: scale(1.1);
+}
+
+.light-bridge {
+  background: linear-gradient(90deg, transparent, var(--lume-glow), transparent);
+  opacity: 0.3;
+  transition: opacity var(--transition-normal);
+  height: 2px;
+  position: relative;
+}
+
+.light-bridge:hover {
+  opacity: 0.6;
+}
+
+.light-bridge::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, rgba(78, 205, 196, 0.2), transparent);
+  filter: blur(2px);
+}
+
+@keyframes breathe {
+  0%, 100% { 
+    opacity: 0.8; 
+  }
+  50% { 
+    opacity: 1; 
+  }
+}
+
 /* Serendipity Multiplier Styles */
 .serendipity-container {
   background: rgba(149, 225, 211, 0.1);
