@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { Database } from '../types/database';
+import { apiCall, getCachedData, setCachedData } from './api';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -17,93 +18,88 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
 });
 
 // Auth helpers
-export const signUp = async (email: string, password: string, userData: any) => {
-  const { data, error } = await supabase.auth.signUp({
+export const signUp = (email: string, password: string, userData: any) =>
+  apiCall(() => supabase.auth.signUp({
     email,
     password,
-    options: {
-      data: userData
-    }
-  });
-  return { data, error };
-};
+    options: { data: userData }
+  }));
 
-export const signIn = async (email: string, password: string) => {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password
-  });
-  return { data, error };
-};
+export const signIn = (email: string, password: string) =>
+  apiCall(() => supabase.auth.signInWithPassword({ email, password }));
 
-export const signOut = async () => {
-  const { error } = await supabase.auth.signOut();
-  return { error };
-};
+export const signOut = () =>
+  apiCall(() => supabase.auth.signOut());
 
-export const getCurrentUser = async () => {
-  const { data: { user }, error } = await supabase.auth.getUser();
-  return { user, error };
-};
+export const getCurrentUser = () =>
+  apiCall(() => supabase.auth.getUser());
 
 // Profile helpers
-export const getProfile = async (userId: string) => {
-  const { data, error } = await supabase
+export const getProfile = (userId: string) =>
+  apiCall(() => supabase
     .from('profiles')
     .select('*')
     .eq('id', userId)
-    .single();
-  return { data, error };
-};
+    .single()
+  );
 
-export const updateProfile = async (userId: string, updates: any) => {
-  const { data, error } = await supabase
+export const updateProfile = (userId: string, updates: any) =>
+  apiCall(() => supabase
     .from('profiles')
     .update(updates)
     .eq('id', userId)
     .select()
-    .single();
-  return { data, error };
-};
+    .single()
+  );
 
-// Events helpers
+// Events helpers with caching
 export const getEvents = async () => {
-  const { data, error } = await supabase
+  const cacheKey = 'events';
+  const cached = getCachedData(cacheKey);
+  
+  if (cached) {
+    return { data: cached, error: null };
+  }
+  
+  const result = await apiCall(() => supabase
     .from('events')
     .select('*')
-    .order('start_time', { ascending: true });
-  return { data, error };
+    .order('start_time', { ascending: true })
+  );
+  
+  if (result.data) {
+    setCachedData(cacheKey, result.data, 600000); // 10 minutes cache
+  }
+  
+  return result;
 };
 
-export const saveEvent = async (userId: string, eventId: string) => {
-  const { data, error } = await supabase
+export const saveEvent = (userId: string, eventId: string) =>
+  apiCall(() => supabase
     .from('event_saves')
     .insert({ user_id: userId, event_id: eventId })
     .select()
-    .single();
-  return { data, error };
-};
+    .single()
+  );
 
-export const unsaveEvent = async (userId: string, eventId: string) => {
-  const { error } = await supabase
+export const unsaveEvent = (userId: string, eventId: string) =>
+  apiCall(() => supabase
     .from('event_saves')
     .delete()
     .eq('user_id', userId)
-    .eq('event_id', eventId);
-  return { error };
-};
+    .eq('event_id', eventId)
+  );
 
-export const getSavedEvents = async (userId: string) => {
-  const { data, error } = await supabase
+export const getSavedEvents = (userId: string) =>
+  apiCall(() => supabase
     .from('event_saves')
     .select('event_id')
-    .eq('user_id', userId);
-  return { data, error };
-};
+    .eq('user_id', userId)
+  );
 
 // Pitches helpers
-export const getPitches = async () => {
-  const { data, error } = await supabase
+export const getPitches = () =>
+  apiCall(() => supabase
     .from('pitches')
     .select(`
       *,
@@ -112,12 +108,11 @@ export const getPitches = async () => {
         company
       )
     `)
-    .order('created_at', { ascending: false });
-  return { data, error };
-};
+    .order('created_at', { ascending: false })
+  );
 
-export const createPitch = async (pitchData: any) => {
-  const { data, error } = await supabase
+export const createPitch = (pitchData: any) =>
+  apiCall(() => supabase
     .from('pitches')
     .insert(pitchData)
     .select(`
@@ -127,12 +122,11 @@ export const createPitch = async (pitchData: any) => {
         company
       )
     `)
-    .single();
-  return { data, error };
-};
+    .single()
+  );
 
-export const likePitch = async (userId: string, pitchId: string) => {
-  const { data, error } = await supabase
+export const likePitch = (userId: string, pitchId: string) =>
+  apiCall(() => supabase
     .from('pitch_interactions')
     .insert({
       user_id: userId,
@@ -140,23 +134,21 @@ export const likePitch = async (userId: string, pitchId: string) => {
       interaction_type: 'like'
     })
     .select()
-    .single();
-  return { data, error };
-};
+    .single()
+  );
 
-export const unlikePitch = async (userId: string, pitchId: string) => {
-  const { error } = await supabase
+export const unlikePitch = (userId: string, pitchId: string) =>
+  apiCall(() => supabase
     .from('pitch_interactions')
     .delete()
     .eq('user_id', userId)
     .eq('pitch_id', pitchId)
-    .eq('interaction_type', 'like');
-  return { error };
-};
+    .eq('interaction_type', 'like')
+  );
 
 // Gatherings helpers
-export const getGatherings = async () => {
-  const { data, error } = await supabase
+export const getGatherings = () =>
+  apiCall(() => supabase
     .from('gatherings')
     .select(`
       *,
@@ -165,12 +157,11 @@ export const getGatherings = async () => {
         company
       )
     `)
-    .order('created_at', { ascending: false });
-  return { data, error };
-};
+    .order('created_at', { ascending: false })
+  );
 
-export const createGathering = async (gatheringData: any) => {
-  const { data, error } = await supabase
+export const createGathering = (gatheringData: any) =>
+  apiCall(() => supabase
     .from('gatherings')
     .insert(gatheringData)
     .select(`
@@ -180,12 +171,11 @@ export const createGathering = async (gatheringData: any) => {
         company
       )
     `)
-    .single();
-  return { data, error };
-};
+    .single()
+  );
 
-export const joinGathering = async (userId: string, gatheringId: string) => {
-  const { data, error } = await supabase
+export const joinGathering = (userId: string, gatheringId: string) =>
+  apiCall(() => supabase
     .from('gathering_attendees')
     .insert({
       user_id: userId,
@@ -193,22 +183,20 @@ export const joinGathering = async (userId: string, gatheringId: string) => {
       status: 'attending'
     })
     .select()
-    .single();
-  return { data, error };
-};
+    .single()
+  );
 
-export const leaveGathering = async (userId: string, gatheringId: string) => {
-  const { error } = await supabase
+export const leaveGathering = (userId: string, gatheringId: string) =>
+  apiCall(() => supabase
     .from('gathering_attendees')
     .delete()
     .eq('user_id', userId)
-    .eq('gathering_id', gatheringId);
-  return { error };
-};
+    .eq('gathering_id', gatheringId)
+  );
 
 // Networking Signals helpers
-export const getNetworkingSignals = async () => {
-  const { data, error } = await supabase
+export const getNetworkingSignals = () =>
+  apiCall(() => supabase
     .from('networking_signals')
     .select(`
       *,
@@ -219,12 +207,11 @@ export const getNetworkingSignals = async () => {
     `)
     .eq('is_active', true)
     .gt('expires_at', new Date().toISOString())
-    .order('created_at', { ascending: false });
-  return { data, error };
-};
+    .order('created_at', { ascending: false })
+  );
 
-export const createNetworkingSignal = async (signalData: any) => {
-  const { data, error } = await supabase
+export const createNetworkingSignal = (signalData: any) =>
+  apiCall(() => supabase
     .from('networking_signals')
     .insert(signalData)
     .select(`
@@ -234,12 +221,11 @@ export const createNetworkingSignal = async (signalData: any) => {
         company
       )
     `)
-    .single();
-  return { data, error };
-};
+    .single()
+  );
 
-export const respondToSignal = async (userId: string, signalId: string, message: string) => {
-  const { data, error } = await supabase
+export const respondToSignal = (userId: string, signalId: string, message: string) =>
+  apiCall(() => supabase
     .from('networking_responses')
     .insert({
       user_id: userId,
@@ -247,12 +233,11 @@ export const respondToSignal = async (userId: string, signalId: string, message:
       message: message
     })
     .select()
-    .single();
-  return { data, error };
-};
+    .single()
+  );
 
-export const updateUserLocation = async (userId: string, latitude: number, longitude: number, venue?: string) => {
-  const { data, error } = await supabase
+export const updateUserLocation = (userId: string, latitude: number, longitude: number, venue?: string) =>
+  apiCall(() => supabase
     .from('user_locations')
     .upsert({
       user_id: userId,
@@ -262,19 +247,17 @@ export const updateUserLocation = async (userId: string, latitude: number, longi
       updated_at: new Date().toISOString()
     })
     .select()
-    .single();
-  return { data, error };
-};
+    .single()
+  );
 
-export const getNearbyUsers = async (latitude: number, longitude: number, radiusKm: number = 1) => {
-  const { data, error } = await supabase
+export const getNearbyUsers = (latitude: number, longitude: number, radiusKm: number = 1) =>
+  apiCall(() => supabase
     .rpc('get_nearby_users', {
       user_lat: latitude,
       user_lng: longitude,
       radius_km: radiusKm
-    });
-  return { data, error };
-};
+    })
+  );
 
 // Real-time subscriptions
 export const subscribeToTable = (table: string, callback: (payload: any) => void) => {

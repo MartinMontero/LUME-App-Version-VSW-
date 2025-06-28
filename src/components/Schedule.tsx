@@ -2,9 +2,17 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Clock, MapPin, Users, Filter, Calendar, Star, Sparkles } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
+import { useDebounce } from '../hooks/useDebounce';
 import { getEvents, saveEvent, unsaveEvent, getSavedEvents } from '../lib/supabase';
+import { formatTime, formatDate, createStaggerDelay, triggerHaptic } from '../utils';
+import { TRACK_COLORS } from '../constants';
 import { NaturalRhythms } from './NaturalRhythms';
-import { LoadingLight } from './LoadingLight';
+import { LoadingSpinner } from './common/LoadingSpinner';
+import { Section } from './common/Section';
+import { SectionHeader } from './common/SectionHeader';
+import { Card } from './common/Card';
+import { Button } from './forms/Button';
+import { Input } from './forms/FormField';
 import { EmptyState } from './ui/EmptyState';
 import { ErrorMessage } from './ui/ErrorMessage';
 import { SkeletonLoader } from './ui/SkeletonLoader';
@@ -38,14 +46,8 @@ export const Schedule: React.FC = () => {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstanceRef = useRef<any>(null);
 
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const filters: TrackFilter[] = ['All', 'Tech & Innovation', 'Funding & Investment', 'Growth & Marketing', 'Social Impact'];
-
-  const trackColors = {
-    'Tech & Innovation': 'var(--lume-glow)',
-    'Funding & Investment': 'var(--lume-soft)',
-    'Growth & Marketing': 'var(--lume-warm)',
-    'Social Impact': 'var(--lume-spark)'
-  };
 
   useEffect(() => {
     loadEvents();
@@ -61,64 +63,20 @@ export const Schedule: React.FC = () => {
       filtered = filtered.filter(event => event.track === activeFilter);
     }
     
-    if (searchQuery) {
+    if (debouncedSearchQuery) {
       filtered = filtered.filter(event => 
-        event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.speakers?.some(speaker => speaker.toLowerCase().includes(searchQuery.toLowerCase()))
+        event.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+        event.description?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+        event.speakers?.some(speaker => speaker.toLowerCase().includes(debouncedSearchQuery.toLowerCase()))
       );
     }
     
     setFilteredEvents(filtered);
-  }, [activeFilter, searchQuery, events]);
+  }, [activeFilter, debouncedSearchQuery, events]);
 
   useEffect(() => {
     if (chartRef.current && events.length > 0) {
-      const ctx = chartRef.current.getContext('2d');
-      if (ctx) {
-        import('chart.js/auto').then((Chart) => {
-          if (chartInstanceRef.current) {
-            chartInstanceRef.current.destroy();
-          }
-
-          const trackCounts = Object.keys(trackColors).map(track => 
-            events.filter(event => event.track === track).length
-          );
-
-          chartInstanceRef.current = new Chart.default(ctx, {
-            type: 'doughnut',
-            data: {
-              labels: Object.keys(trackColors),
-              datasets: [{
-                data: trackCounts,
-                backgroundColor: Object.values(trackColors).map(color => color + '40'),
-                borderColor: Object.values(trackColors),
-                borderWidth: 3,
-                hoverBorderWidth: 4,
-              }]
-            },
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: {
-                legend: {
-                  position: 'bottom',
-                  labels: {
-                    padding: 20,
-                    usePointStyle: true,
-                    color: 'var(--lume-light)',
-                    font: {
-                      size: 12,
-                      family: 'Inter'
-                    }
-                  }
-                }
-              },
-              cutout: '60%',
-            }
-          });
-        });
-      }
+      createChart();
     }
 
     return () => {
@@ -129,11 +87,59 @@ export const Schedule: React.FC = () => {
     };
   }, [events]);
 
+  const createChart = async () => {
+    const ctx = chartRef.current?.getContext('2d');
+    if (!ctx) return;
+
+    const Chart = await import('chart.js/auto');
+    
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.destroy();
+    }
+
+    const trackCounts = Object.keys(TRACK_COLORS).map(track => 
+      events.filter(event => event.track === track).length
+    );
+
+    chartInstanceRef.current = new Chart.default(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(TRACK_COLORS),
+        datasets: [{
+          data: trackCounts,
+          backgroundColor: Object.values(TRACK_COLORS).map(color => color + '40'),
+          borderColor: Object.values(TRACK_COLORS),
+          borderWidth: 3,
+          hoverBorderWidth: 4,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              padding: 20,
+              usePointStyle: true,
+              color: 'var(--lume-light)',
+              font: {
+                size: 12,
+                family: 'Inter'
+              }
+            }
+          }
+        },
+        cutout: '60%',
+      }
+    });
+  };
+
   const loadEvents = async () => {
     try {
       setLoadingError(null);
       const { data, error: fetchError } = await getEvents();
-      if (fetchError) throw fetchError;
+      if (fetchError) throw new Error(fetchError);
       setEvents(data || []);
     } catch (err: any) {
       setLoadingError(err.message);
@@ -148,7 +154,7 @@ export const Schedule: React.FC = () => {
     
     try {
       const { data, error: fetchError } = await getSavedEvents(user.id);
-      if (fetchError) throw fetchError;
+      if (fetchError) throw new Error(fetchError);
       setSavedEvents(new Set(data?.map(save => save.event_id) || []));
     } catch (err: any) {
       error('Failed to load saved events', err.message);
@@ -161,20 +167,18 @@ export const Schedule: React.FC = () => {
     try {
       const newSavedEvents = new Set(savedEvents);
       if (newSavedEvents.has(eventId)) {
-        await unsaveEvent(user.id, eventId);
+        const { error: unsaveError } = await unsaveEvent(user.id, eventId);
+        if (unsaveError) throw new Error(unsaveError);
         newSavedEvents.delete(eventId);
         success('Event removed from constellation');
       } else {
-        await saveEvent(user.id, eventId);
+        const { error: saveError } = await saveEvent(user.id, eventId);
+        if (saveError) throw new Error(saveError);
         newSavedEvents.add(eventId);
         success('Light bridge formed!', 'Event added to your constellation');
       }
       setSavedEvents(newSavedEvents);
-      
-      // Haptic feedback
-      if ('vibrate' in navigator) {
-        navigator.vibrate(50);
-      }
+      triggerHaptic('light');
     } catch (err: any) {
       error('Failed to save event', err.message);
     }
@@ -182,256 +186,217 @@ export const Schedule: React.FC = () => {
 
   const handleFilterClick = (filter: TrackFilter) => {
     setActiveFilter(filter);
-    // Haptic feedback
-    if ('vibrate' in navigator) {
-      navigator.vibrate(30);
-    }
-  };
-
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    });
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric'
-    });
+    triggerHaptic('light');
   };
 
   if (loading) {
     return (
-      <section id="schedule" className="py-24 px-6 gradient-ocean safe-area-top">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center">
-            <div className="w-16 h-16 gradient-aurora rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <LoadingLight size="md" />
-            </div>
-            <p className="text-lume-light animate-fade-in-up">Loading events...</p>
-          </div>
-        </div>
-      </section>
+      <Section id="schedule" background="ocean">
+        <LoadingSpinner message="Loading events..." />
+      </Section>
     );
   }
 
   return (
-    <section id="schedule" className="py-24 px-6 gradient-ocean safe-area-top">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-16 animate-fade-in-up">
-          <div className="inline-flex items-center px-4 py-2 bg-lume-glow/20 backdrop-blur-sm rounded-full text-lume-glow text-sm font-medium mb-6 border border-lume-glow/20">
-            <Calendar className="w-4 h-4 mr-2" />
-            Smart Schedule
+    <Section id="schedule" background="ocean">
+      <SectionHeader
+        badge={{
+          icon: Calendar,
+          text: 'Smart Schedule',
+          color: 'lume-glow'
+        }}
+        title="Your Personalized"
+        subtitle="Event Journey"
+        description="Navigate the week's events with intelligent filtering, save your favorites, and never miss the sessions that matter to your startup journey."
+      />
+
+      {/* Main Content Grid with Sidebar */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        {/* Sidebar */}
+        <div className="lg:col-span-1 space-y-6">
+          {/* Natural Rhythms */}
+          <div className="animate-fade-in-left stagger-1">
+            <NaturalRhythms />
           </div>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-white mb-6">
-            Your Personalized
-            <span className="block gradient-text">Event Journey</span>
-          </h2>
-          <p className="text-lg md:text-xl text-lume-light max-w-3xl mx-auto leading-relaxed opacity-90">
-            Navigate the week's events with intelligent filtering, save your favorites, 
-            and never miss the sessions that matter to your startup journey.
-          </p>
+          
+          {/* Quick Insights */}
+          <Card variant="elevated" className="p-6 animate-fade-in-left stagger-2">
+            <h3 className="text-lg font-display font-semibold text-white mb-6">
+              Quick Insights
+            </h3>
+            <div className="space-y-4">
+              {[
+                { label: 'Total Events', value: events.length, color: 'text-white' },
+                { label: 'Active Tracks', value: Object.keys(TRACK_COLORS).length, color: 'text-white' },
+                { label: 'Saved Events', value: savedEvents.size, color: 'gradient-text' }
+              ].map((stat, index) => (
+                <div key={index} className="flex items-center justify-between p-3 bg-lume-ocean/30 rounded-xl backdrop-blur-sm">
+                  <span className="text-lume-light font-medium text-sm">{stat.label}</span>
+                  <span className={`text-xl font-display font-bold ${stat.color}`}>{stat.value}</span>
+                </div>
+              ))}
+            </div>
+          </Card>
         </div>
 
-        {/* Main Content Grid with Sidebar */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Sidebar */}
-          <div className="lg:col-span-1 space-y-6">
-            {/* Natural Rhythms */}
-            <div className="animate-fade-in-left stagger-1">
-              <NaturalRhythms />
-            </div>
-            
-            {/* Quick Insights */}
-            <div className="card-elevated p-6 animate-fade-in-left stagger-2">
-              <h3 className="text-lg font-display font-semibold text-white mb-6">
-                Quick Insights
+        {/* Main Content */}
+        <div className="lg:col-span-3 space-y-8">
+          {/* Chart */}
+          {events.length > 0 && (
+            <Card variant="elevated" className="p-6 md:p-8 animate-fade-in-right stagger-3">
+              <h3 className="text-xl md:text-2xl font-display font-semibold text-white mb-6">
+                Events by Track
               </h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-lume-ocean/30 rounded-xl backdrop-blur-sm">
-                  <span className="text-lume-light font-medium text-sm">Total Events</span>
-                  <span className="text-xl font-display font-bold text-white">{events.length}</span>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-lume-ocean/30 rounded-xl backdrop-blur-sm">
-                  <span className="text-lume-light font-medium text-sm">Active Tracks</span>
-                  <span className="text-xl font-display font-bold text-white">{Object.keys(trackColors).length}</span>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-lume-ocean/30 rounded-xl backdrop-blur-sm">
-                  <span className="text-lume-light font-medium text-sm">Saved Events</span>
-                  <span className="text-xl font-display font-bold gradient-text">{savedEvents.size}</span>
-                </div>
+              <div className="chart-container">
+                <canvas ref={chartRef}></canvas>
               </div>
-            </div>
-          </div>
+            </Card>
+          )}
 
-          {/* Main Content */}
-          <div className="lg:col-span-3 space-y-8">
-            {/* Chart */}
-            {events.length > 0 && (
-              <div className="card-elevated p-6 md:p-8 animate-fade-in-right stagger-3">
-                <h3 className="text-xl md:text-2xl font-display font-semibold text-white mb-6">
-                  Events by Track
-                </h3>
-                <div className="chart-container">
-                  <canvas ref={chartRef}></canvas>
-                </div>
+          {/* Search and Filters */}
+          <Card variant="elevated" className="p-6 md:p-8 animate-fade-in-right stagger-4">
+            <div className="flex flex-col gap-6">
+              {/* Search */}
+              <div className="serendipity-container">
+                <div className="text-2xl mr-3" aria-hidden="true">✨</div>
+                <Input
+                  type="text"
+                  placeholder="What's exciting you today?"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="serendipity-input"
+                />
               </div>
-            )}
 
-            {/* Serendipity Multiplier and Filters */}
-            <div className="card-elevated p-6 md:p-8 animate-fade-in-right stagger-4">
-              <div className="flex flex-col gap-6">
-                {/* Serendipity Multiplier */}
-                <div className="w-full">
-                  <div className="serendipity-container">
-                    <div className="text-2xl mr-3" aria-hidden="true">✨</div>
-                    <input
-                      type="text"
-                      placeholder="What's exciting you today?"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="serendipity-input"
-                      aria-label="Search events"
-                    />
-                  </div>
-                </div>
-
-                {/* Filters */}
-                <div className="flex items-center gap-2 flex-wrap">
-                  <Filter className="w-5 h-5 text-lume-mist mr-2" aria-hidden="true" />
-                  {filters.map(filter => (
-                    <button
-                      key={filter}
-                      onClick={() => handleFilterClick(filter)}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 min-h-[44px] focus-ring ${
-                        activeFilter === filter 
-                          ? 'gradient-aurora text-white shadow-lg' 
-                          : 'bg-lume-ocean/30 text-lume-light hover:bg-lume-ocean/50'
-                      }`}
-                      aria-pressed={activeFilter === filter}
-                    >
-                      {filter}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Events Grid */}
-            {loadingError ? (
-              <ErrorMessage 
-                message={loadingError}
-                onRetry={loadEvents}
-              />
-            ) : filteredEvents.length === 0 && events.length === 0 ? (
-              <EmptyState
-                icon={Calendar}
-                title="Your light field is quiet"
-                description="No events are currently available. Check back soon as new sessions are added regularly."
-                action={{
-                  label: 'Refresh Events',
-                  onClick: loadEvents,
-                  variant: 'constellation'
-                }}
-              />
-            ) : filteredEvents.length === 0 ? (
-              <EmptyState
-                icon={Sparkles}
-                title="No matching events found"
-                description="Try adjusting your search or filter criteria to discover more events that align with your interests."
-                action={{
-                  label: 'Clear Filters',
-                  onClick: () => {
-                    setActiveFilter('All');
-                    setSearchQuery('');
-                  },
-                  variant: 'secondary'
-                }}
-              />
-            ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {filteredEvents.map((event, index) => (
-                  <div
-                    key={event.id}
-                    className="card-elevated p-6 interactive animate-fade-in-scale"
-                    style={{ animationDelay: `${0.1 * (index % 6)}s` }}
+              {/* Filters */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <Filter className="w-5 h-5 text-lume-mist mr-2" aria-hidden="true" />
+                {filters.map(filter => (
+                  <Button
+                    key={filter}
+                    variant={activeFilter === filter ? 'constellation' : 'ghost'}
+                    size="sm"
+                    onClick={() => handleFilterClick(filter)}
+                    className="min-h-[44px]"
                   >
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-3 flex-wrap">
-                          <span 
-                            className="px-3 py-1 text-xs font-semibold rounded-full text-white"
-                            style={{ backgroundColor: trackColors[event.track as keyof typeof trackColors] }}
-                          >
-                            {event.track}
-                          </span>
-                          {user && (
-                            <button
-                              onClick={() => toggleSaveEvent(event.id)}
-                              className={`p-2 rounded-full transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center focus-ring ${
-                                savedEvents.has(event.id) 
-                                  ? 'text-lume-warm hover:text-lume-warm/80' 
-                                  : 'text-lume-mist hover:text-lume-light'
-                              }`}
-                              aria-label={savedEvents.has(event.id) ? 'Remove from saved events' : 'Save event'}
-                            >
-                              <Star className={`w-5 h-5 ${savedEvents.has(event.id) ? 'fill-current' : ''}`} />
-                            </button>
-                          )}
-                        </div>
-                        <h4 className="text-lg md:text-xl font-display font-semibold text-white mb-3 leading-tight">
-                          {event.title}
-                        </h4>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-3 mb-4">
-                      <div className="flex items-center text-lume-light text-sm">
-                        <Clock className="w-4 h-4 mr-3 text-lume-mist flex-shrink-0" />
-                        <span className="font-medium">
-                          {formatDate(event.start_time)} • {formatTime(event.start_time)} - {formatTime(event.end_time)}
-                        </span>
-                      </div>
-                      <div className="flex items-center text-lume-light text-sm">
-                        <MapPin className="w-4 h-4 mr-3 text-lume-mist flex-shrink-0" />
-                        <span>{event.location}</span>
-                      </div>
-                      {event.speakers && event.speakers.length > 0 && (
-                        <div className="flex items-center text-lume-light text-sm">
-                          <Users className="w-4 h-4 mr-3 text-lume-mist flex-shrink-0" />
-                          <span>{event.speakers.join(', ')}</span>
-                        </div>
-                      )}
-                    </div>
-                    
-                    {event.description && (
-                      <p className="text-lume-light leading-relaxed mb-4 opacity-80 text-sm">
-                        {event.description}
-                      </p>
-                    )}
-                    
-                    <div className="flex items-center justify-between gap-4">
-                      <button className="btn-ghost text-lume-glow hover:bg-lume-glow/10 flex-1 min-h-[44px] focus-ring">
-                        View Details
-                      </button>
-                      <button className="btn-secondary flex-1 min-h-[44px] focus-ring">
-                        Add to Calendar
-                      </button>
-                    </div>
-                  </div>
+                    {filter}
+                  </Button>
                 ))}
               </div>
-            )}
-          </div>
+            </div>
+          </Card>
+
+          {/* Events Grid */}
+          {loadingError ? (
+            <ErrorMessage 
+              message={loadingError}
+              onRetry={loadEvents}
+            />
+          ) : filteredEvents.length === 0 && events.length === 0 ? (
+            <EmptyState
+              icon={Calendar}
+              title="Your light field is quiet"
+              description="No events are currently available. Check back soon as new sessions are added regularly."
+              action={{
+                label: 'Refresh Events',
+                onClick: loadEvents,
+                variant: 'constellation'
+              }}
+            />
+          ) : filteredEvents.length === 0 ? (
+            <EmptyState
+              icon={Sparkles}
+              title="No matching events found"
+              description="Try adjusting your search or filter criteria to discover more events that align with your interests."
+              action={{
+                label: 'Clear Filters',
+                onClick: () => {
+                  setActiveFilter('All');
+                  setSearchQuery('');
+                },
+                variant: 'secondary'
+              }}
+            />
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {filteredEvents.map((event, index) => (
+                <Card
+                  key={event.id}
+                  variant="elevated"
+                  interactive
+                  className="p-6 animate-fade-in-scale"
+                  style={{ animationDelay: createStaggerDelay(index % 6) }}
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-3 flex-wrap">
+                        <span 
+                          className="px-3 py-1 text-xs font-semibold rounded-full text-white"
+                          style={{ backgroundColor: TRACK_COLORS[event.track as keyof typeof TRACK_COLORS] }}
+                        >
+                          {event.track}
+                        </span>
+                        {user && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => toggleSaveEvent(event.id)}
+                            className={`p-2 rounded-full min-w-[44px] min-h-[44px] ${
+                              savedEvents.has(event.id) 
+                                ? 'text-lume-warm hover:text-lume-warm/80' 
+                                : 'text-lume-mist hover:text-lume-light'
+                            }`}
+                            aria-label={savedEvents.has(event.id) ? 'Remove from saved events' : 'Save event'}
+                          >
+                            <Star className={`w-5 h-5 ${savedEvents.has(event.id) ? 'fill-current' : ''}`} />
+                          </Button>
+                        )}
+                      </div>
+                      <h4 className="text-lg md:text-xl font-display font-semibold text-white mb-3 leading-tight">
+                        {event.title}
+                      </h4>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3 mb-4">
+                    <div className="flex items-center text-lume-light text-sm">
+                      <Clock className="w-4 h-4 mr-3 text-lume-mist flex-shrink-0" />
+                      <span className="font-medium">
+                        {formatDate(event.start_time)} • {formatTime(event.start_time)} - {formatTime(event.end_time)}
+                      </span>
+                    </div>
+                    <div className="flex items-center text-lume-light text-sm">
+                      <MapPin className="w-4 h-4 mr-3 text-lume-mist flex-shrink-0" />
+                      <span>{event.location}</span>
+                    </div>
+                    {event.speakers && event.speakers.length > 0 && (
+                      <div className="flex items-center text-lume-light text-sm">
+                        <Users className="w-4 h-4 mr-3 text-lume-mist flex-shrink-0" />
+                        <span>{event.speakers.join(', ')}</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {event.description && (
+                    <p className="text-lume-light leading-relaxed mb-4 opacity-80 text-sm">
+                      {event.description}
+                    </p>
+                  )}
+                  
+                  <div className="flex items-center justify-between gap-4">
+                    <Button variant="ghost" size="sm" className="flex-1 min-h-[44px]">
+                      View Details
+                    </Button>
+                    <Button variant="secondary" size="sm" className="flex-1 min-h-[44px]">
+                      Add to Calendar
+                    </Button>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </div>
-    </section>
+    </Section>
   );
 };
