@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Menu, X, Zap, LogOut, User } from 'lucide-react';
 import { signOut } from '../lib/supabase';
 import { User as SupabaseUser } from '@supabase/supabase-js';
+import { triggerHaptic, getTimeBasedGreeting } from '../utils';
 
 interface NavigationProps {
   user: SupabaseUser | null;
@@ -15,33 +16,16 @@ export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => 
   const [greeting, setGreeting] = useState('');
 
   const menuItems = [
-    { id: 'home', label: 'Home' },
-    { id: 'schedule', label: 'Schedule' },
-    { id: 'networking', label: 'Network' },
-    { id: 'community', label: 'Community' },
-    { id: 'insights', label: 'Insights' }
+    { id: 'home', label: 'Home', description: 'Welcome to LUME' },
+    { id: 'schedule', label: 'Schedule', description: 'Discover events' },
+    { id: 'networking', label: 'Network', description: 'Connect & collaborate' },
+    { id: 'community', label: 'Community', description: 'Join gatherings' },
+    { id: 'insights', label: 'Insights', description: 'Learn & grow' }
   ];
 
-  // Time-based greeting function
-  const getTimeBasedGreeting = () => {
-    const hour = new Date().getHours();
-    
-    if (hour >= 6 && hour < 9) {
-      return 'Morning Light - Ideas emerging';
-    } else if (hour >= 9 && hour < 17) {
-      return 'Bright Hours - Building mode';
-    } else if (hour >= 17 && hour < 20) {
-      return 'Golden Time - Natural connections';
-    } else {
-      return 'Evening Glow - Deep conversations';
-    }
-  };
-
   useEffect(() => {
-    // Set initial greeting
     setGreeting(getTimeBasedGreeting());
     
-    // Update greeting every minute
     const interval = setInterval(() => {
       setGreeting(getTimeBasedGreeting());
     }, 60000);
@@ -76,20 +60,13 @@ export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => 
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     setIsMenuOpen(false);
-    
-    // Haptic feedback for mobile
-    if ('vibrate' in navigator) {
-      navigator.vibrate(50);
-    }
+    triggerHaptic('light');
   };
 
   const handleSignOut = async () => {
     try {
       await signOut();
-      // Haptic feedback
-      if ('vibrate' in navigator) {
-        navigator.vibrate(100);
-      }
+      triggerHaptic('medium');
     } catch (error) {
       console.error('Error signing out:', error);
     }
@@ -97,152 +74,222 @@ export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => 
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
-    // Haptic feedback
-    if ('vibrate' in navigator) {
-      navigator.vibrate(50);
-    }
+    triggerHaptic('light');
+  };
+
+  const handleAuthClick = () => {
+    onAuthClick();
+    triggerHaptic('medium');
   };
 
   return (
-    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 safe-area-top ${
-      scrolled 
-        ? 'backdrop-blur-[10px] shadow-lg border-b border-lume-mist/20' 
-        : 'bg-transparent'
-    }`}
-    style={{
-      background: scrolled 
-        ? 'linear-gradient(180deg, rgba(10, 22, 40, 0.9) 0%, transparent 100%)'
-        : 'transparent'
-    }}>
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex items-center justify-between h-20">
-          {/* Logo and Greeting */}
-          <div className="flex items-center space-x-6">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 gradient-aurora rounded-xl flex items-center justify-center shadow-lg">
-                <Zap className="w-6 h-6 text-white" />
-              </div>
-              <div 
-                className="gradient-text font-light tracking-[0.1em]"
-                style={{
-                  fontSize: '2rem',
-                  fontWeight: 300,
-                  letterSpacing: '0.1em',
-                  textShadow: '0 0 20px rgba(78, 205, 196, 0.3)'
-                }}
+    <>
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 safe-area-top ${
+        scrolled 
+          ? 'backdrop-blur-xl shadow-xl border-b border-lume-mist/20' 
+          : 'bg-transparent'
+      }`}
+      style={{
+        background: scrolled 
+          ? 'linear-gradient(180deg, rgba(10, 22, 40, 0.95) 0%, rgba(10, 22, 40, 0.8) 100%)'
+          : 'transparent'
+      }}>
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center justify-between h-20">
+            {/* Enhanced Logo */}
+            <div className="flex items-center space-x-6">
+              <button 
+                onClick={() => scrollToSection('home')}
+                className="flex items-center space-x-3 group focus-ring rounded-xl p-2 -m-2"
+                aria-label="Go to home"
               >
-                LUME
-              </div>
-            </div>
-            
-            {/* Time-based Greeting - Hidden on mobile */}
-            <div className="hidden lg:block">
-              <div className="text-sm text-lume-light/80 font-medium">
-                {greeting}
-              </div>
-            </div>
-          </div>
-
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-1">
-            {menuItems.map(item => (
-              <button
-                key={item.id}
-                onClick={() => scrollToSection(item.id)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                  activeSection === item.id 
-                    ? 'bg-gradient-to-r from-lume-glow to-lume-soft text-lume-deep shadow-sm' 
-                    : 'text-lume-light hover:text-white hover:bg-lume-ocean/50'
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Auth Section */}
-          <div className="hidden md:flex items-center space-x-4">
-            {user ? (
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center space-x-2 px-3 py-2 bg-lume-ocean/50 rounded-full backdrop-blur-sm border border-lume-mist/20">
-                  <User className="w-4 h-4 text-lume-light" />
-                  <span className="text-sm font-medium text-lume-light">
-                    {user.user_metadata?.full_name || user.email?.split('@')[0]}
-                  </span>
+                <div className="w-10 h-10 gradient-aurora rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110">
+                  <Zap className="w-6 h-6 text-white" />
                 </div>
-                <button
-                  onClick={handleSignOut}
-                  className="p-2 text-lume-light hover:text-white hover:bg-lume-ocean/50 rounded-full transition-colors"
-                  title="Sign out"
+                <div 
+                  className="gradient-text font-light tracking-[0.1em] group-hover:scale-105 transition-transform duration-300"
+                  style={{
+                    fontSize: '2rem',
+                    fontWeight: 300,
+                    letterSpacing: '0.1em',
+                    textShadow: '0 0 20px rgba(78, 205, 196, 0.3)'
+                  }}
                 >
-                  <LogOut className="w-5 h-5" />
-                </button>
+                  LUME
+                </div>
+              </button>
+              
+              {/* Enhanced Greeting */}
+              <div className="hidden lg:block">
+                <div className="text-sm text-lume-light/80 font-medium px-3 py-1 bg-lume-ocean/20 rounded-full border border-lume-mist/10 backdrop-blur-sm">
+                  {greeting}
+                </div>
               </div>
-            ) : (
-              <button onClick={onAuthClick} className="btn-constellation">
-                Join Constellation
-              </button>
-            )}
-          </div>
+            </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={toggleMenu}
-            className="md:hidden p-3 rounded-lg hover:bg-lume-ocean/50 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-          >
-            {isMenuOpen ? <X size={24} className="text-white" /> : <Menu size={24} className="text-white" />}
-          </button>
-        </div>
+            {/* Enhanced Desktop Menu */}
+            <div className="hidden md:flex items-center space-x-2">
+              {menuItems.map(item => (
+                <button
+                  key={item.id}
+                  onClick={() => scrollToSection(item.id)}
+                  className={`group relative px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 focus-ring ${
+                    activeSection === item.id 
+                      ? 'bg-gradient-to-r from-lume-glow to-lume-soft text-lume-deep shadow-lg' 
+                      : 'text-lume-light hover:text-white hover:bg-lume-ocean/50'
+                  }`}
+                  aria-label={`Navigate to ${item.label}: ${item.description}`}
+                >
+                  <span className="relative z-10">{item.label}</span>
+                  {activeSection !== item.id && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-lume-glow/10 to-lume-soft/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  )}
+                </button>
+              ))}
+            </div>
 
-        {/* Mobile Greeting */}
-        <div className="lg:hidden pb-2 px-2">
-          <div className="text-xs text-lume-light/70 font-medium text-center">
-            {greeting}
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Menu Overlay */}
-      {isMenuOpen && (
-        <div className="mobile-menu-overlay animate-fade-in">
-          <div className="w-full max-w-sm space-y-4">
-            {menuItems.map((item, index) => (
-              <button
-                key={item.id}
-                onClick={() => scrollToSection(item.id)}
-                className={`mobile-menu-item ${
-                  activeSection === item.id ? 'active' : ''
-                }`}
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                {item.label}
-              </button>
-            ))}
-            
-            <div className="pt-6 border-t border-lume-mist/20">
+            {/* Enhanced Auth Section */}
+            <div className="hidden md:flex items-center space-x-4">
               {user ? (
-                <div className="space-y-4">
-                  <div className="text-center px-4 py-3 bg-lume-ocean/30 rounded-xl backdrop-blur-sm">
-                    <div className="text-sm text-lume-light">
-                      Signed in as {user.user_metadata?.full_name || user.email?.split('@')[0]}
+                <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-3 px-4 py-2 bg-lume-ocean/50 rounded-xl backdrop-blur-sm border border-lume-mist/20 hover:bg-lume-ocean/70 transition-all duration-300">
+                    <div className="w-8 h-8 luminous-avatar text-sm">
+                      {user.user_metadata?.full_name?.charAt(0) || user.email?.charAt(0) || 'U'}
+                    </div>
+                    <div className="text-sm">
+                      <div className="font-medium text-white">
+                        {user.user_metadata?.full_name || user.email?.split('@')[0]}
+                      </div>
+                      {user.user_metadata?.company && (
+                        <div className="text-xs text-lume-mist">
+                          {user.user_metadata.company}
+                        </div>
+                      )}
                     </div>
                   </div>
                   <button
                     onClick={handleSignOut}
-                    className="btn-secondary w-full justify-center min-h-[56px]"
+                    className="p-3 text-lume-light hover:text-white hover:bg-lume-ocean/50 rounded-xl transition-all duration-300 focus-ring"
+                    title="Sign out"
+                    aria-label="Sign out of your account"
                   >
                     <LogOut className="w-5 h-5" />
-                    Sign Out
                   </button>
                 </div>
               ) : (
                 <button 
+                  onClick={handleAuthClick} 
+                  className="btn-constellation"
+                  aria-label="Join the LUME constellation"
+                >
+                  <Zap className="w-4 h-4" />
+                  Join Constellation
+                </button>
+              )}
+            </div>
+
+            {/* Enhanced Mobile Menu Button */}
+            <button
+              onClick={toggleMenu}
+              className="md:hidden p-3 rounded-xl hover:bg-lume-ocean/50 transition-all duration-300 min-w-[48px] min-h-[48px] flex items-center justify-center focus-ring"
+              aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={isMenuOpen}
+            >
+              <div className="relative w-6 h-6">
+                <Menu 
+                  className={`absolute inset-0 w-6 h-6 text-white transition-all duration-300 ${
+                    isMenuOpen ? 'opacity-0 rotate-90' : 'opacity-100 rotate-0'
+                  }`} 
+                />
+                <X 
+                  className={`absolute inset-0 w-6 h-6 text-white transition-all duration-300 ${
+                    isMenuOpen ? 'opacity-100 rotate-0' : 'opacity-0 -rotate-90'
+                  }`} 
+                />
+              </div>
+            </button>
+          </div>
+
+          {/* Mobile Greeting */}
+          <div className="lg:hidden pb-3 px-2">
+            <div className="text-xs text-lume-light/70 font-medium text-center px-3 py-1 bg-lume-ocean/20 rounded-full border border-lume-mist/10 backdrop-blur-sm inline-block">
+              {greeting}
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Enhanced Mobile Menu */}
+      {isMenuOpen && (
+        <div className="mobile-menu-overlay animate-fade-in">
+          <div className="w-full max-w-sm space-y-6">
+            {/* Menu Items */}
+            <div className="space-y-2">
+              {menuItems.map((item, index) => (
+                <button
+                  key={item.id}
+                  onClick={() => scrollToSection(item.id)}
+                  className={`mobile-menu-item group ${
+                    activeSection === item.id ? 'active' : ''
+                  }`}
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                  aria-label={`Navigate to ${item.label}: ${item.description}`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-semibold">{item.label}</div>
+                      <div className="text-sm text-lume-mist group-hover:text-lume-light transition-colors">
+                        {item.description}
+                      </div>
+                    </div>
+                    {activeSection === item.id && (
+                      <div className="w-2 h-2 bg-lume-glow rounded-full animate-pulse" />
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+            
+            {/* Auth Section */}
+            <div className="pt-6 border-t border-lume-mist/20 space-y-4">
+              {user ? (
+                <>
+                  <div className="text-center px-6 py-4 bg-lume-ocean/30 rounded-xl backdrop-blur-sm border border-lume-mist/20">
+                    <div className="flex items-center justify-center gap-3 mb-2">
+                      <div className="w-10 h-10 luminous-avatar text-sm">
+                        {user.user_metadata?.full_name?.charAt(0) || user.email?.charAt(0) || 'U'}
+                      </div>
+                      <div>
+                        <div className="font-medium text-white">
+                          {user.user_metadata?.full_name || user.email?.split('@')[0]}
+                        </div>
+                        {user.user_metadata?.company && (
+                          <div className="text-sm text-lume-mist">
+                            {user.user_metadata.company}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleSignOut}
+                    className="btn-secondary w-full justify-center min-h-[56px] group"
+                    aria-label="Sign out of your account"
+                  >
+                    <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <button 
                   onClick={() => {
-                    onAuthClick();
+                    handleAuthClick();
                     setIsMenuOpen(false);
                   }} 
-                  className="btn-constellation w-full justify-center min-h-[56px]"
+                  className="btn-constellation w-full justify-center min-h-[56px] group"
+                  aria-label="Join the LUME constellation"
                 >
+                  <Zap className="w-5 h-5 group-hover:scale-110 transition-transform" />
                   Join Constellation
                 </button>
               )}
@@ -250,6 +297,6 @@ export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => 
           </div>
         </div>
       )}
-    </nav>
+    </>
   );
 };

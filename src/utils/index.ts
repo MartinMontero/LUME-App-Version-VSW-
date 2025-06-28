@@ -57,18 +57,25 @@ export const formatTimeRemaining = (expiresAt: string): string => {
   return 'Expired';
 };
 
-// Haptic feedback utilities
+// Enhanced haptic feedback utilities
 export const triggerHaptic = (pattern: keyof typeof HAPTIC_PATTERNS): void => {
   if ('vibrate' in navigator) {
     navigator.vibrate(HAPTIC_PATTERNS[pattern]);
   }
 };
 
-// Scroll utilities
+// Enhanced scroll utilities
 export const scrollToSection = (sectionId: string): void => {
   const element = document.getElementById(sectionId);
   if (element) {
-    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Calculate offset for fixed navigation
+    const navHeight = 80;
+    const elementPosition = element.offsetTop - navHeight;
+    
+    window.scrollTo({
+      top: elementPosition,
+      behavior: 'smooth'
+    });
   }
   triggerHaptic('light');
 };
@@ -81,6 +88,31 @@ export const validateEmail = (email: string): boolean => {
 
 export const validateRequired = (value: string): boolean => {
   return value.trim().length > 0;
+};
+
+export const validatePassword = (password: string): { isValid: boolean; errors: string[] } => {
+  const errors: string[] = [];
+  
+  if (password.length < 8) {
+    errors.push('Password must be at least 8 characters long');
+  }
+  
+  if (!/[A-Z]/.test(password)) {
+    errors.push('Password must contain at least one uppercase letter');
+  }
+  
+  if (!/[a-z]/.test(password)) {
+    errors.push('Password must contain at least one lowercase letter');
+  }
+  
+  if (!/\d/.test(password)) {
+    errors.push('Password must contain at least one number');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
 };
 
 // Animation utilities
@@ -104,7 +136,7 @@ export const getBrightnessGlow = (level: number): React.CSSProperties => {
   };
 };
 
-// Time-based greeting
+// Enhanced time-based greeting
 export const getTimeBasedGreeting = (): string => {
   const hour = new Date().getHours();
   
@@ -119,12 +151,12 @@ export const getTimeBasedGreeting = (): string => {
   }
 };
 
-// Class name utilities
+// Enhanced class name utilities
 export const cn = (...classes: (string | undefined | null | false)[]): string => {
   return classes.filter(Boolean).join(' ');
 };
 
-// Debounce utility
+// Performance utilities
 export const debounce = <T extends (...args: any[]) => any>(
   func: T,
   wait: number
@@ -136,7 +168,6 @@ export const debounce = <T extends (...args: any[]) => any>(
   };
 };
 
-// Throttle utility
 export const throttle = <T extends (...args: any[]) => any>(
   func: T,
   limit: number
@@ -149,4 +180,158 @@ export const throttle = <T extends (...args: any[]) => any>(
       setTimeout(() => (inThrottle = false), limit);
     }
   };
+};
+
+// Accessibility utilities
+export const announceToScreenReader = (message: string): void => {
+  const announcement = document.createElement('div');
+  announcement.setAttribute('aria-live', 'polite');
+  announcement.setAttribute('aria-atomic', 'true');
+  announcement.className = 'sr-only';
+  announcement.textContent = message;
+  
+  document.body.appendChild(announcement);
+  
+  setTimeout(() => {
+    document.body.removeChild(announcement);
+  }, 1000);
+};
+
+export const trapFocus = (element: HTMLElement): (() => void) => {
+  const focusableElements = element.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  
+  const firstElement = focusableElements[0] as HTMLElement;
+  const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+  
+  const handleTabKey = (e: KeyboardEvent) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          lastElement.focus();
+          e.preventDefault();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          firstElement.focus();
+          e.preventDefault();
+        }
+      }
+    }
+  };
+  
+  element.addEventListener('keydown', handleTabKey);
+  firstElement?.focus();
+  
+  return () => {
+    element.removeEventListener('keydown', handleTabKey);
+  };
+};
+
+// Local storage utilities with error handling
+export const safeLocalStorage = {
+  getItem: (key: string): string | null => {
+    try {
+      return localStorage.getItem(key);
+    } catch (error) {
+      console.warn(`Failed to get item from localStorage: ${key}`, error);
+      return null;
+    }
+  },
+  
+  setItem: (key: string, value: string): boolean => {
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch (error) {
+      console.warn(`Failed to set item in localStorage: ${key}`, error);
+      return false;
+    }
+  },
+  
+  removeItem: (key: string): boolean => {
+    try {
+      localStorage.removeItem(key);
+      return true;
+    } catch (error) {
+      console.warn(`Failed to remove item from localStorage: ${key}`, error);
+      return false;
+    }
+  }
+};
+
+// URL utilities
+export const createShareUrl = (path: string, params?: Record<string, string>): string => {
+  const url = new URL(path, window.location.origin);
+  
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      url.searchParams.set(key, value);
+    });
+  }
+  
+  return url.toString();
+};
+
+// Color utilities
+export const hexToRgba = (hex: string, alpha: number): string => {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
+// Device detection utilities
+export const isMobile = (): boolean => {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
+
+export const isTouchDevice = (): boolean => {
+  return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+};
+
+// Network utilities
+export const isOnline = (): boolean => {
+  return navigator.onLine;
+};
+
+export const getConnectionType = (): string => {
+  const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
+  return connection?.effectiveType || 'unknown';
+};
+
+// Error handling utilities
+export const createErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  
+  if (typeof error === 'string') {
+    return error;
+  }
+  
+  return 'An unexpected error occurred';
+};
+
+// Format utilities
+export const formatNumber = (num: number): string => {
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(1) + 'M';
+  }
+  
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1) + 'K';
+  }
+  
+  return num.toString();
+};
+
+export const formatFileSize = (bytes: number): string => {
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  if (bytes === 0) return '0 Bytes';
+  
+  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
 };
