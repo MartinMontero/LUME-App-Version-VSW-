@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Clock, MapPin, Users, Filter, Search, Calendar, Star } from 'lucide-react';
+import { Clock, MapPin, Users, Filter, Calendar, Star, Sparkles } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { getEvents, saveEvent, unsaveEvent, getSavedEvents } from '../lib/supabase';
 
@@ -247,19 +247,21 @@ export const Schedule: React.FC = () => {
           </div>
         </div>
 
-        {/* Search and Filters */}
+        {/* Serendipity Multiplier and Filters */}
         <div className="card-elevated p-8 mb-8 animate-slide-up" style={{ animationDelay: '0.3s' }}>
           <div className="flex flex-col lg:flex-row gap-6 items-center">
-            {/* Search */}
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-lume-mist w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search events, speakers, topics..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="input-field pl-12"
-              />
+            {/* Serendipity Multiplier */}
+            <div className="flex-1 max-w-md">
+              <div className="serendipity-container flex items-center gap-4">
+                <div className="text-2xl">✨</div>
+                <input
+                  type="text"
+                  placeholder="What's exciting you today?"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="serendipity-input"
+                />
+              </div>
             </div>
 
             {/* Filters */}
@@ -358,7 +360,7 @@ export const Schedule: React.FC = () => {
         {filteredEvents.length === 0 && (
           <div className="text-center py-16">
             <div className="w-16 h-16 bg-lume-ocean/30 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
-              <Search className="w-8 h-8 text-lume-mist" />
+              <Sparkles className="w-8 h-8 text-lume-mist" />
             </div>
             <h3 className="text-xl font-display font-semibold text-white mb-2">
               No events found
