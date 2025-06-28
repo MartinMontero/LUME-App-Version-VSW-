@@ -142,6 +142,118 @@ body {
   background-clip: text;
 }
 
+/* Brightness Card Styles */
+.brightness-card {
+  background: rgba(255, 230, 109, 0.1);
+  border: 1px solid rgba(255, 230, 109, 0.3);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all var(--transition-normal);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.brightness-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 230, 109, 0.15);
+  border-color: rgba(255, 230, 109, 0.5);
+}
+
+.brightness-card-content {
+  position: relative;
+  z-index: 2;
+}
+
+.brightness-meter {
+  position: relative;
+}
+
+.brightness-meter-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 230, 109, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.brightness-meter-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.brightness-shimmer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.4) 50%, 
+    transparent 100%);
+  animation: brightness-shimmer 2s ease-in-out infinite;
+}
+
+@keyframes brightness-shimmer {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Collaborators Styles */
+.collaborators-container {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.collaborator-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--lume-deep);
+  transition: all var(--transition-normal);
+  cursor: pointer;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.collaborator-circle:hover {
+  transform: scale(1.1) translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  z-index: 100 !important;
+}
+
+.collaborator-overflow {
+  background: rgba(118, 146, 183, 0.8) !important;
+  border-color: var(--lume-mist);
+}
+
+.collaborator-initials {
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
 /* Natural Rhythms Sidebar */
 .natural-rhythms-sidebar {
   background: rgba(30, 58, 95, 0.2);
@@ -646,6 +758,19 @@ body {
   
   .rhythm-indicator {
     padding: 0.5rem;
+  }
+  
+  .brightness-card {
+    padding: 1rem;
+  }
+  
+  .collaborator-circle {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .collaborator-initials {
+    font-size: 10px;
   }
 }
 

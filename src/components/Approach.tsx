@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronDown, ChevronUp, Brain, TrendingUp, Users, Lightbulb } from 'lucide-react';
 import { lessonsData } from '../data/sampleData';
+import { ProjectShowcase } from './ProjectShowcase';
 
 export const Approach: React.FC = () => {
   const chartRef = useRef<HTMLCanvasElement>(null);
@@ -28,24 +29,24 @@ export const Approach: React.FC = () => {
                 {
                   label: 'Networking',
                   data: [65, 72, 78, 85, 88, 92],
-                  borderColor: '#3B82F6',
-                  backgroundColor: '#3B82F620',
+                  borderColor: 'var(--lume-glow)',
+                  backgroundColor: 'rgba(78, 205, 196, 0.2)',
                   tension: 0.4,
                   fill: true
                 },
                 {
                   label: 'Event Discovery',
                   data: [70, 75, 82, 87, 90, 95],
-                  borderColor: '#10B981',
-                  backgroundColor: '#10B98120',
+                  borderColor: 'var(--lume-soft)',
+                  backgroundColor: 'rgba(149, 225, 211, 0.2)',
                   tension: 0.4,
                   fill: true
                 },
                 {
                   label: 'Community Engagement',
                   data: [60, 68, 75, 80, 85, 89],
-                  borderColor: '#F59E0B',
-                  backgroundColor: '#F59E0B20',
+                  borderColor: 'var(--lume-warm)',
+                  backgroundColor: 'rgba(255, 230, 109, 0.2)',
                   tension: 0.4,
                   fill: true
                 }
@@ -60,9 +61,10 @@ export const Approach: React.FC = () => {
                   labels: {
                     padding: 20,
                     usePointStyle: true,
+                    color: 'var(--lume-light)',
                     font: {
                       size: 12,
-                      family: 'SF Pro Text'
+                      family: 'Inter'
                     }
                   }
                 }
@@ -74,15 +76,19 @@ export const Approach: React.FC = () => {
                   ticks: {
                     callback: function(value) {
                       return value + '%';
-                    }
+                    },
+                    color: 'var(--lume-light)'
                   },
                   grid: {
-                    color: '#f3f4f6'
+                    color: 'rgba(118, 146, 183, 0.2)'
                   }
                 },
                 x: {
+                  ticks: {
+                    color: 'var(--lume-light)'
+                  },
                   grid: {
-                    color: '#f3f4f6'
+                    color: 'rgba(118, 146, 183, 0.2)'
                   }
                 }
               },
@@ -111,42 +117,42 @@ export const Approach: React.FC = () => {
       icon: Brain,
       title: 'Behavioral Psychology',
       description: 'Every feature is designed using proven psychological principles to maximize engagement and meaningful connections.',
-      color: 'from-purple-500 to-indigo-500'
+      color: 'from-lume-spark to-lume-warm'
     },
     {
       icon: TrendingUp,
       title: 'Network Theory',
       description: 'Leveraging the science of networks to create exponential value through strategic connection facilitation.',
-      color: 'from-blue-500 to-cyan-500'
+      color: 'from-lume-glow to-lume-soft'
     },
     {
       icon: Users,
       title: 'Community Dynamics',
       description: 'Understanding how communities form and thrive to build features that strengthen social bonds.',
-      color: 'from-green-500 to-emerald-500'
+      color: 'from-lume-soft to-lume-glow'
     },
     {
       icon: Lightbulb,
       title: 'Serendipity Engineering',
       description: 'Systematically creating conditions for unexpected discoveries and breakthrough moments.',
-      color: 'from-orange-500 to-red-500'
+      color: 'from-lume-warm to-lume-spark'
     }
   ];
 
   return (
-    <section id="insights" className="py-24 px-6">
+    <section id="insights" className="py-24 px-6 gradient-ocean">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16 animate-slide-up">
-          <div className="inline-flex items-center px-4 py-2 bg-indigo-100 rounded-full text-indigo-600 text-sm font-medium mb-6">
+          <div className="inline-flex items-center px-4 py-2 bg-lume-warm/20 backdrop-blur-sm rounded-full text-lume-warm text-sm font-medium mb-6 border border-lume-warm/20">
             <Brain className="w-4 h-4 mr-2" />
             Design Philosophy
           </div>
-          <h2 className="text-4xl md:text-5xl font-display font-bold text-neutral-800 mb-6">
+          <h2 className="text-4xl md:text-5xl font-display font-bold text-white mb-6">
             Science-Backed
-            <span className="block text-gradient">Approach</span>
+            <span className="block gradient-text">Approach</span>
           </h2>
-          <p className="text-xl text-neutral-600 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-lume-light max-w-3xl mx-auto leading-relaxed opacity-90">
             This platform is built on key insights from behavioral psychology and network theory. 
             Every feature is intentionally crafted to maximize meaningful connections and opportunities.
           </p>
@@ -161,10 +167,10 @@ export const Approach: React.FC = () => {
                 <div className={`w-16 h-16 bg-gradient-to-br ${insight.color} rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg`}>
                   <Icon className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-display font-semibold text-neutral-800 mb-3">
+                <h3 className="text-xl font-display font-semibold text-white mb-3">
                   {insight.title}
                 </h3>
-                <p className="text-neutral-600 leading-relaxed text-sm">
+                <p className="text-lume-light leading-relaxed text-sm opacity-80">
                   {insight.description}
                 </p>
               </div>
@@ -173,9 +179,9 @@ export const Approach: React.FC = () => {
         </div>
 
         {/* Analytics & Lessons */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-20">
           <div className="card-elevated p-8 animate-slide-up" style={{ animationDelay: '0.4s' }}>
-            <h3 className="text-2xl font-display font-semibold text-neutral-800 mb-6">
+            <h3 className="text-2xl font-display font-semibold text-white mb-6">
               Engagement Analytics
             </h3>
             <div className="chart-container">
@@ -184,30 +190,30 @@ export const Approach: React.FC = () => {
           </div>
 
           <div className="card-elevated p-8 animate-slide-up" style={{ animationDelay: '0.5s' }}>
-            <h3 className="text-2xl font-display font-semibold text-neutral-800 mb-8">
+            <h3 className="text-2xl font-display font-semibold text-white mb-8">
               Key Principles Applied
             </h3>
             
             <div className="space-y-4">
               {lessonsData.map((lesson, index) => (
-                <div key={index} className="border border-neutral-200 rounded-xl overflow-hidden">
+                <div key={index} className="border border-lume-ocean/50 rounded-xl overflow-hidden backdrop-blur-sm">
                   <button
                     onClick={() => toggleLesson(index)}
-                    className="w-full flex items-center justify-between p-6 text-left hover:bg-neutral-50 transition-colors"
+                    className="w-full flex items-center justify-between p-6 text-left hover:bg-lume-ocean/30 transition-colors"
                   >
-                    <span className="font-display font-semibold text-neutral-800 text-lg">
+                    <span className="font-display font-semibold text-white text-lg">
                       {lesson.title}
                     </span>
                     {expandedLesson === index ? (
-                      <ChevronUp className="w-5 h-5 text-neutral-500" />
+                      <ChevronUp className="w-5 h-5 text-lume-mist" />
                     ) : (
-                      <ChevronDown className="w-5 h-5 text-neutral-500" />
+                      <ChevronDown className="w-5 h-5 text-lume-mist" />
                     )}
                   </button>
                   
                   {expandedLesson === index && (
                     <div className="px-6 pb-6 animate-slide-up">
-                      <p className="text-neutral-600 leading-relaxed">
+                      <p className="text-lume-light leading-relaxed opacity-90">
                         {lesson.content}
                       </p>
                     </div>
@@ -217,6 +223,9 @@ export const Approach: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Project Showcase */}
+        <ProjectShowcase />
       </div>
     </section>
   );
