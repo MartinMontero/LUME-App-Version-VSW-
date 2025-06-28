@@ -347,8 +347,8 @@ export const NetworkingSignals: React.FC = () => {
       {/* Create Signal Modal */}
       <Modal isOpen={isSignalModalOpen} onClose={closeSignalModal} title="Broadcast Networking Signal">
         <form onSubmit={handleSignalSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-lume-light mb-3">
+          <div className="form-group">
+            <label className="form-label required">
               Signal Type
             </label>
             <div className="grid grid-cols-2 gap-3">
@@ -377,22 +377,22 @@ export const NetworkingSignals: React.FC = () => {
             </div>
           </div>
           
-          <div>
-            <label className="block text-sm font-medium text-lume-light mb-2">
+          <div className="form-group">
+            <label className="form-label required">
               Message
             </label>
             <textarea
               placeholder="What would you like to do? Share your interests or what you're looking for..."
               value={signalForm.message}
               onChange={(e) => setSignalForm({...signalForm, message: e.target.value})}
-              className="input-field h-24 resize-none"
+              className="textarea-field"
               required
             />
           </div>
           
-          <div>
-            <label className="block text-sm font-medium text-lume-light mb-2">
-              Location (Optional)
+          <div className="form-group">
+            <label className="form-label">
+              Location
             </label>
             <input
               type="text"
@@ -401,16 +401,17 @@ export const NetworkingSignals: React.FC = () => {
               onChange={(e) => setSignalForm({...signalForm, location: e.target.value})}
               className="input-field"
             />
+            <div className="form-help">Optional - helps others find you</div>
           </div>
           
-          <div>
-            <label className="block text-sm font-medium text-lume-light mb-2">
+          <div className="form-group">
+            <label className="form-label required">
               Duration
             </label>
             <select
               value={signalForm.duration}
               onChange={(e) => setSignalForm({...signalForm, duration: e.target.value})}
-              className="input-field"
+              className="select-field"
             >
               <option value="1">1 hour</option>
               <option value="2">2 hours</option>

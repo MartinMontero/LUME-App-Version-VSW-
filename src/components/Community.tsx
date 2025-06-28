@@ -186,7 +186,7 @@ export const Community: React.FC = () => {
               </p>
             </div>
             {user && (
-              <button onClick={openGatheringModal} className="btn-primary">
+              <button onClick={openGatheringModal} className="btn-constellation">
                 <Plus className="w-5 h-5" />
                 Create Gathering
               </button>
@@ -291,8 +291,8 @@ export const Community: React.FC = () => {
 
         <Modal isOpen={isGatheringModalOpen} onClose={closeGatheringModal} title="Create a Gathering">
           <form onSubmit={handleGatheringSubmit} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-lume-light mb-2">
+            <div className="form-group">
+              <label className="form-label required">
                 Gathering Name
               </label>
               <input
@@ -305,8 +305,8 @@ export const Community: React.FC = () => {
               />
             </div>
             
-            <div>
-              <label className="block text-sm font-medium text-lume-light mb-2">
+            <div className="form-group">
+              <label className="form-label required">
                 Location
               </label>
               <input
@@ -320,8 +320,8 @@ export const Community: React.FC = () => {
             </div>
             
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-lume-light mb-2">
+              <div className="form-group">
+                <label className="form-label required">
                   Date & Time
                 </label>
                 <input
@@ -333,9 +333,9 @@ export const Community: React.FC = () => {
                 />
               </div>
               
-              <div>
-                <label className="block text-sm font-medium text-lume-light mb-2">
-                  Max Attendees (Optional)
+              <div className="form-group">
+                <label className="form-label">
+                  Max Attendees
                 </label>
                 <input
                   type="number"
@@ -345,18 +345,19 @@ export const Community: React.FC = () => {
                   className="input-field"
                   min="1"
                 />
+                <div className="form-help">Optional - leave blank for unlimited</div>
               </div>
             </div>
             
-            <div>
-              <label className="block text-sm font-medium text-lume-light mb-2">
+            <div className="form-group">
+              <label className="form-label required">
                 Description
               </label>
               <textarea
                 placeholder="What's this gathering about? What should people expect?"
                 value={gatheringForm.description}
                 onChange={(e) => setGatheringForm({...gatheringForm, description: e.target.value})}
-                className="input-field h-32 resize-none"
+                className="textarea-field"
                 required
               />
             </div>
@@ -365,7 +366,8 @@ export const Community: React.FC = () => {
               <button type="button" onClick={closeGatheringModal} className="btn-secondary flex-1">
                 Cancel
               </button>
-              <button type="submit" className="btn-primary flex-1">
+              <button type="submit" className="btn-constellation flex-1">
+                <Zap className="w-4 h-4" />
                 Create Gathering
               </button>
             </div>

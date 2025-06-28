@@ -56,13 +56,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center modal-backdrop animate-fade-in">
       <div className="modal-content max-w-md w-full mx-4 animate-scale-in">
-        <div className="flex items-center justify-between p-8 border-b border-neutral-100">
-          <h3 className="text-2xl font-display font-semibold text-neutral-800">
-            {isSignUp ? 'Join Lume' : 'Welcome Back'}
+        <div className="flex items-center justify-between p-8 border-b border-lume-ocean/30">
+          <h3 className="text-2xl font-display font-semibold text-white">
+            {isSignUp ? 'Join the Constellation' : 'Welcome Back to LUME'}
           </h3>
           <button
             onClick={onClose}
-            className="p-2 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors"
+            className="p-2 text-lume-mist hover:text-white hover:bg-lume-ocean/50 rounded-lg transition-colors"
           >
             <X className="w-6 h-6" />
           </button>
@@ -72,43 +72,43 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {isSignUp && (
               <>
-                <div>
-                  <label className="block text-sm font-medium text-neutral-700 mb-2">
+                <div className="form-group">
+                  <label className="form-label required">
                     Full Name
                   </label>
-                  <div className="relative">
-                    <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400 w-5 h-5" />
+                  <div className="input-with-icon">
                     <input
                       type="text"
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleInputChange}
-                      className="input-field pl-12"
+                      className="input-field"
                       placeholder="Your full name"
                       required
                     />
+                    <User className="input-icon" />
                   </div>
                 </div>
                 
-                <div>
-                  <label className="block text-sm font-medium text-neutral-700 mb-2">
+                <div className="form-group">
+                  <label className="form-label">
                     Company
                   </label>
-                  <div className="relative">
-                    <Building className="absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400 w-5 h-5" />
+                  <div className="input-with-icon">
                     <input
                       type="text"
                       name="company"
                       value={formData.company}
                       onChange={handleInputChange}
-                      className="input-field pl-12"
+                      className="input-field"
                       placeholder="Your company or startup"
                     />
+                    <Building className="input-icon" />
                   </div>
                 </div>
                 
-                <div>
-                  <label className="block text-sm font-medium text-neutral-700 mb-2">
+                <div className="form-group">
+                  <label className="form-label">
                     Role
                   </label>
                   <input
@@ -123,63 +123,63 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               </>
             )}
             
-            <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-2">
+            <div className="form-group">
+              <label className="form-label required">
                 Email
               </label>
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400 w-5 h-5" />
+              <div className="input-with-icon">
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="input-field pl-12"
+                  className="input-field"
                   placeholder="your@email.com"
                   required
                 />
+                <Mail className="input-icon" />
               </div>
             </div>
             
-            <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-2">
+            <div className="form-group">
+              <label className="form-label required">
                 Password
               </label>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400 w-5 h-5" />
+              <div className="input-with-icon">
                 <input
                   type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="input-field pl-12"
+                  className="input-field"
                   placeholder="••••••••"
                   required
                 />
+                <Lock className="input-icon" />
               </div>
             </div>
             
             {error && (
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-red-600 text-sm">{error}</p>
+              <div className="p-4 bg-lume-spark/10 border border-lume-spark/30 rounded-lg backdrop-blur-sm">
+                <p className="form-error">{error}</p>
               </div>
             )}
             
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full justify-center text-lg py-4"
+              className="btn-constellation w-full justify-center text-lg py-4"
             >
-              {loading ? 'Please wait...' : (isSignUp ? 'Create Account' : 'Sign In')}
+              {loading ? 'Please wait...' : (isSignUp ? 'Join Constellation' : 'Enter LUME')}
             </button>
           </form>
           
           <div className="mt-6 text-center">
             <button
               onClick={() => setIsSignUp(!isSignUp)}
-              className="text-orange-600 hover:text-orange-700 font-medium"
+              className="text-lume-glow hover:text-lume-soft font-medium transition-colors"
             >
-              {isSignUp ? 'Already have an account? Sign in' : 'Need an account? Sign up'}
+              {isSignUp ? 'Already part of the constellation? Sign in' : 'New to LUME? Join the constellation'}
             </button>
           </div>
         </div>
