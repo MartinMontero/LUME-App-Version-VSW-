@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, MapPin, Clock, User, MessageSquare, Heart, Share2, Coffee, Users, Zap } from 'lucide-react';
 import { Modal } from './ui/Modal';
+import { EmptyState } from './ui/EmptyState';
+import { ErrorMessage } from './ui/ErrorMessage';
+import { SkeletonLoader } from './ui/SkeletonLoader';
 import { useModal } from '../hooks/useModal';
 import { useAuth } from '../hooks/useAuth';
+import { useToast } from '../hooks/useToast';
 import { getGatherings, createGathering, joinGathering, leaveGathering, subscribeToTable } from '../lib/supabase';
-import { LoadingLight } from './LoadingLight';
 
 interface Gathering {
   id: string;
@@ -25,8 +28,10 @@ interface Gathering {
 
 export const Community: React.FC = () => {
   const { user } = useAuth();
+  const { success, error } = useToast();
   const [gatherings, setGatherings] = useState<Gathering[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingError, setLoadingError] = useState<string | null>(null);
   const [gatheringForm, setGatheringForm] = useState({
     name: '',
     location: '',
@@ -60,11 +65,13 @@ export const Community: React.FC = () => {
 
   const loadGatherings = async () => {
     try {
-      const { data, error } = await getGatherings();
-      if (error) throw error;
+      setLoadingError(null);
+      const { data, error: fetchError } = await getGatherings();
+      if (fetchError) throw fetchError;
       setGatherings(data || []);
-    } catch (error) {
-      console.error('Error loading gatherings:', error);
+    } catch (err: any) {
+      setLoadingError(err.message);
+      error('Failed to load gatherings', 'Something dimmed unexpectedly');
     } finally {
       setLoading(false);
     }
@@ -75,7 +82,7 @@ export const Community: React.FC = () => {
     if (!user) return;
     
     try {
-      const { data, error } = await createGathering({
+      const { data, error: createError } = await createGathering({
         organizer_id: user.id,
         name: gatheringForm.name,
         location: gatheringForm.location,
@@ -84,7 +91,7 @@ export const Community: React.FC = () => {
         max_attendees: gatheringForm.max_attendees ? parseInt(gatheringForm.max_attendees) : null
       });
       
-      if (error) throw error;
+      if (createError) throw createError;
       
       setGatheringForm({
         name: '',
@@ -94,8 +101,9 @@ export const Community: React.FC = () => {
         max_attendees: ''
       });
       closeGatheringModal();
-    } catch (error) {
-      console.error('Error creating gathering:', error);
+      success('Light bridge formed!', 'Your gathering has been created successfully');
+    } catch (err: any) {
+      error('Failed to create gathering', err.message);
     }
   };
 
@@ -104,8 +112,9 @@ export const Community: React.FC = () => {
     
     try {
       await joinGathering(user.id, gatheringId);
-    } catch (error) {
-      console.error('Error joining gathering:', error);
+      success('Added to constellation!', 'You\'ve joined the gathering');
+    } catch (err: any) {
+      error('Failed to join gathering', err.message);
     }
   };
 
@@ -134,7 +143,7 @@ export const Community: React.FC = () => {
   };
 
   return (
-    <section id="community" className="py-24 px-6 gradient-ocean">
+    <section id="community" className="py-24 px-6 gradient-ocean safe-area-top">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16 animate-fade-in-up">
@@ -142,11 +151,11 @@ export const Community: React.FC = () => {
             <Coffee className="w-4 h-4 mr-2" />
             Community Hub
           </div>
-          <h2 className="text-4xl md:text-5xl font-display font-bold text-white mb-6">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-white mb-6">
             Beyond the
             <span className="block gradient-text">Official Schedule</span>
           </h2>
-          <p className="text-xl text-lume-light max-w-3xl mx-auto leading-relaxed opacity-90">
+          <p className="text-lg md:text-xl text-lume-light max-w-3xl mx-auto leading-relaxed opacity-90">
             Discover unofficial meetups, spontaneous gatherings, and community-driven events. 
             Because the best connections often happen outside the official schedule.
           </p>
@@ -175,10 +184,10 @@ export const Community: React.FC = () => {
         </div>
 
         {/* Gatherings Board */}
-        <div className="card-elevated p-8 status-live animate-fade-in-up stagger-4">
-          <div className="flex items-center justify-between mb-8">
+        <div className="card-elevated p-6 md:p-8 status-live animate-fade-in-up stagger-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
             <div>
-              <h3 className="text-2xl font-display font-semibold text-white mb-2">
+              <h3 className="text-xl md:text-2xl font-display font-semibold text-white mb-2">
                 Informal Gatherings
               </h3>
               <p className="text-lume-light opacity-80">
@@ -186,7 +195,11 @@ export const Community: React.FC = () => {
               </p>
             </div>
             {user && (
-              <button onClick={openGatheringModal} className="btn-constellation">
+              <button 
+                onClick={openGatheringModal} 
+                className="btn-constellation w-full md:w-auto"
+                aria-label="Create a new gathering"
+              >
                 <Plus className="w-5 h-5" />
                 Create Gathering
               </button>
@@ -194,12 +207,23 @@ export const Community: React.FC = () => {
           </div>
           
           {loading ? (
-            <div className="text-center py-12">
-              <div className="w-12 h-12 bg-lume-ocean/30 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
-                <LoadingLight size="sm" />
-              </div>
-              <p className="text-lume-light opacity-80 animate-fade-in-up">Loading gatherings...</p>
-            </div>
+            <SkeletonLoader variant="card" count={3} />
+          ) : loadingError ? (
+            <ErrorMessage 
+              message={loadingError}
+              onRetry={loadGatherings}
+            />
+          ) : gatherings.length === 0 ? (
+            <EmptyState
+              icon={Coffee}
+              title="Your light field is quiet"
+              description="Share what excites you to see it illuminate. Create the first gathering and watch the community come together around shared interests."
+              action={{
+                label: user ? 'Create First Gathering' : 'Join to Create Gatherings',
+                onClick: user ? openGatheringModal : () => {},
+                variant: 'constellation'
+              }}
+            />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {gatherings.map((gathering, index) => (
@@ -229,22 +253,22 @@ export const Community: React.FC = () => {
                   
                   <div className="space-y-3 mb-4">
                     <div className="flex items-center text-lume-light text-sm opacity-90">
-                      <MapPin className="w-4 h-4 mr-3 text-lume-mist" />
+                      <MapPin className="w-4 h-4 mr-3 text-lume-mist flex-shrink-0" />
                       {gathering.location}
                     </div>
                     <div className="flex items-center text-lume-light text-sm opacity-90">
-                      <Clock className="w-4 h-4 mr-3 text-lume-mist" />
+                      <Clock className="w-4 h-4 mr-3 text-lume-mist flex-shrink-0" />
                       {formatScheduledTime(gathering.scheduled_time)}
                     </div>
                     <div className="flex items-center text-lume-light text-sm opacity-90">
-                      <User className="w-4 h-4 mr-3 text-lume-mist" />
+                      <User className="w-4 h-4 mr-3 text-lume-mist flex-shrink-0" />
                       Organized by {gathering.profiles?.full_name || 'Anonymous'}
                       {gathering.profiles?.company && (
                         <span className="ml-1">• {gathering.profiles.company}</span>
                       )}
                     </div>
                     <div className="flex items-center text-lume-light text-sm opacity-90">
-                      <Users className="w-4 h-4 mr-3 text-lume-mist" />
+                      <Users className="w-4 h-4 mr-3 text-lume-mist flex-shrink-0" />
                       {gathering.attendee_count} attending
                       {gathering.max_attendees && ` / ${gathering.max_attendees} max`}
                     </div>
@@ -256,15 +280,24 @@ export const Community: React.FC = () => {
                   
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-4">
-                      <button className="flex items-center gap-1 text-lume-mist hover:text-lume-spark transition-colors">
+                      <button 
+                        className="flex items-center gap-1 text-lume-mist hover:text-lume-spark transition-colors focus-ring"
+                        aria-label="Like this gathering"
+                      >
                         <Heart className="w-4 h-4" />
                         <span className="text-xs">12</span>
                       </button>
-                      <button className="flex items-center gap-1 text-lume-mist hover:text-lume-glow transition-colors">
+                      <button 
+                        className="flex items-center gap-1 text-lume-mist hover:text-lume-glow transition-colors focus-ring"
+                        aria-label="View comments"
+                      >
                         <MessageSquare className="w-4 h-4" />
                         <span className="text-xs">5</span>
                       </button>
-                      <button className="text-lume-mist hover:text-lume-soft transition-colors">
+                      <button 
+                        className="text-lume-mist hover:text-lume-soft transition-colors focus-ring"
+                        aria-label="Share gathering"
+                      >
                         <Share2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -274,6 +307,7 @@ export const Community: React.FC = () => {
                     onClick={() => handleJoinGathering(gathering.id)}
                     className="btn-constellation w-full justify-center"
                     disabled={!user}
+                    aria-label={`Join ${gathering.name} gathering`}
                   >
                     <Users className="w-4 h-4" />
                     Add to Constellation
@@ -281,7 +315,7 @@ export const Community: React.FC = () => {
                   
                   {/* Light bridges connecting to nearby gatherings */}
                   {index % 3 !== 2 && (
-                    <div className="absolute top-1/2 -right-3 w-6 h-0.5 light-bridge"></div>
+                    <div className="absolute top-1/2 -right-3 w-6 h-0.5 light-bridge" aria-hidden="true"></div>
                   )}
                 </div>
               ))}
@@ -302,7 +336,11 @@ export const Community: React.FC = () => {
                 onChange={(e) => setGatheringForm({...gatheringForm, name: e.target.value})}
                 className="input-field"
                 required
+                aria-describedby="name-help"
               />
+              <div id="name-help" className="form-help">
+                Choose a descriptive name that captures the essence of your gathering
+              </div>
             </div>
             
             <div className="form-group">
@@ -319,7 +357,7 @@ export const Community: React.FC = () => {
               />
             </div>
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="form-group">
                 <label className="form-label required">
                   Date & Time

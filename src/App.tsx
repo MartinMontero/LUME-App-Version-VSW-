@@ -8,18 +8,43 @@ import { Approach } from './components/Approach';
 import { AuthModal } from './components/Auth/AuthModal';
 import { FloatingParticles } from './components/FloatingParticles';
 import { LoadingLight } from './components/LoadingLight';
+import { ToastContainer } from './components/ToastContainer';
+import { AccessibilityMenu } from './components/AccessibilityMenu';
 import { useAuth } from './hooks/useAuth';
 import { useModal } from './hooks/useModal';
+import { useAccessibility } from './hooks/useAccessibility';
 
 function App() {
   const [isLoaded, setIsLoaded] = useState(false);
   const { user, loading } = useAuth();
   const { isOpen: isAuthModalOpen, openModal: openAuthModal, closeModal: closeAuthModal } = useModal();
+  const { preferences } = useAccessibility();
 
   useEffect(() => {
     // Simulate app loading with a more sophisticated animation
     setTimeout(() => setIsLoaded(true), 800);
   }, []);
+
+  useEffect(() => {
+    // Apply accessibility preferences to body
+    if (preferences.reduceMotion) {
+      document.body.classList.add('reduce-motion');
+    } else {
+      document.body.classList.remove('reduce-motion');
+    }
+
+    if (preferences.highContrast) {
+      document.body.classList.add('high-contrast');
+    } else {
+      document.body.classList.remove('high-contrast');
+    }
+
+    if (preferences.largeText) {
+      document.body.classList.add('large-text');
+    } else {
+      document.body.classList.remove('large-text');
+    }
+  }, [preferences]);
 
   if (!isLoaded || loading) {
     return (
@@ -44,9 +69,15 @@ function App() {
 
   return (
     <div className="App">
+      {/* Skip to content link for screen readers */}
+      <a href="#main-content" className="skip-to-content">
+        Skip to main content
+      </a>
+      
       <FloatingParticles />
       <Navigation user={user} onAuthClick={openAuthModal} />
-      <main>
+      
+      <main id="main-content">
         <div className="animate-fade-in-up stagger-1">
           <Home onAuthClick={openAuthModal} />
         </div>
@@ -64,7 +95,7 @@ function App() {
         </div>
       </main>
       
-      <footer className="bg-lume-deep border-t border-lume-ocean/50 text-white py-16 px-6 animate-fade-in-up stagger-6">
+      <footer className="bg-lume-deep border-t border-lume-ocean/50 text-white py-16 px-6 animate-fade-in-up stagger-6 safe-area-bottom">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
             <div className="md:col-span-2">
@@ -94,20 +125,20 @@ function App() {
             <div>
               <h4 className="font-display font-semibold mb-4">Platform</h4>
               <ul className="space-y-3 text-lume-light opacity-80">
-                <li><a href="#" className="hover:text-white transition-colors">Events</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Networking</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Community</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Analytics</a></li>
+                <li><a href="#" className="hover:text-white transition-colors focus-ring">Events</a></li>
+                <li><a href="#" className="hover:text-white transition-colors focus-ring">Networking</a></li>
+                <li><a href="#" className="hover:text-white transition-colors focus-ring">Community</a></li>
+                <li><a href="#" className="hover:text-white transition-colors focus-ring">Analytics</a></li>
               </ul>
             </div>
             
             <div>
               <h4 className="font-display font-semibold mb-4">Support</h4>
               <ul className="space-y-3 text-lume-light opacity-80">
-                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Privacy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Terms</a></li>
+                <li><a href="#" className="hover:text-white transition-colors focus-ring">Help Center</a></li>
+                <li><a href="#" className="hover:text-white transition-colors focus-ring">Contact Us</a></li>
+                <li><a href="#" className="hover:text-white transition-colors focus-ring">Privacy</a></li>
+                <li><a href="#" className="hover:text-white transition-colors focus-ring">Terms</a></li>
               </ul>
             </div>
           </div>
@@ -121,6 +152,8 @@ function App() {
       </footer>
 
       <AuthModal isOpen={isAuthModalOpen} onClose={closeAuthModal} />
+      <ToastContainer />
+      <AccessibilityMenu />
     </div>
   );
 }

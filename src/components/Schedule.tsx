@@ -1,9 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Clock, MapPin, Users, Filter, Calendar, Star, Sparkles } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { useToast } from '../hooks/useToast';
 import { getEvents, saveEvent, unsaveEvent, getSavedEvents } from '../lib/supabase';
 import { NaturalRhythms } from './NaturalRhythms';
 import { LoadingLight } from './LoadingLight';
+import { EmptyState } from './ui/EmptyState';
+import { ErrorMessage } from './ui/ErrorMessage';
+import { SkeletonLoader } from './ui/SkeletonLoader';
 
 interface Event {
   id: string;
@@ -23,12 +27,14 @@ type TrackFilter = 'All' | 'Tech & Innovation' | 'Funding & Investment' | 'Growt
 
 export const Schedule: React.FC = () => {
   const { user } = useAuth();
+  const { success, error } = useToast();
   const [events, setEvents] = useState<Event[]>([]);
   const [activeFilter, setActiveFilter] = useState<TrackFilter>('All');
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [savedEvents, setSavedEvents] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
+  const [loadingError, setLoadingError] = useState<string | null>(null);
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstanceRef = useRef<any>(null);
 
@@ -125,11 +131,13 @@ export const Schedule: React.FC = () => {
 
   const loadEvents = async () => {
     try {
-      const { data, error } = await getEvents();
-      if (error) throw error;
+      setLoadingError(null);
+      const { data, error: fetchError } = await getEvents();
+      if (fetchError) throw fetchError;
       setEvents(data || []);
-    } catch (error) {
-      console.error('Error loading events:', error);
+    } catch (err: any) {
+      setLoadingError(err.message);
+      error('Failed to load events', 'Something dimmed unexpectedly');
     } finally {
       setLoading(false);
     }
@@ -139,11 +147,11 @@ export const Schedule: React.FC = () => {
     if (!user) return;
     
     try {
-      const { data, error } = await getSavedEvents(user.id);
-      if (error) throw error;
+      const { data, error: fetchError } = await getSavedEvents(user.id);
+      if (fetchError) throw fetchError;
       setSavedEvents(new Set(data?.map(save => save.event_id) || []));
-    } catch (error) {
-      console.error('Error loading saved events:', error);
+    } catch (err: any) {
+      error('Failed to load saved events', err.message);
     }
   };
 
@@ -155,9 +163,11 @@ export const Schedule: React.FC = () => {
       if (newSavedEvents.has(eventId)) {
         await unsaveEvent(user.id, eventId);
         newSavedEvents.delete(eventId);
+        success('Event removed from constellation');
       } else {
         await saveEvent(user.id, eventId);
         newSavedEvents.add(eventId);
+        success('Light bridge formed!', 'Event added to your constellation');
       }
       setSavedEvents(newSavedEvents);
       
@@ -165,8 +175,8 @@ export const Schedule: React.FC = () => {
       if ('vibrate' in navigator) {
         navigator.vibrate(50);
       }
-    } catch (error) {
-      console.error('Error toggling event save:', error);
+    } catch (err: any) {
+      error('Failed to save event', err.message);
     }
   };
 
@@ -264,14 +274,16 @@ export const Schedule: React.FC = () => {
           {/* Main Content */}
           <div className="lg:col-span-3 space-y-8">
             {/* Chart */}
-            <div className="card-elevated p-6 md:p-8 animate-fade-in-right stagger-3">
-              <h3 className="text-xl md:text-2xl font-display font-semibold text-white mb-6">
-                Events by Track
-              </h3>
-              <div className="chart-container">
-                <canvas ref={chartRef}></canvas>
+            {events.length > 0 && (
+              <div className="card-elevated p-6 md:p-8 animate-fade-in-right stagger-3">
+                <h3 className="text-xl md:text-2xl font-display font-semibold text-white mb-6">
+                  Events by Track
+                </h3>
+                <div className="chart-container">
+                  <canvas ref={chartRef}></canvas>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Serendipity Multiplier and Filters */}
             <div className="card-elevated p-6 md:p-8 animate-fade-in-right stagger-4">
@@ -279,29 +291,31 @@ export const Schedule: React.FC = () => {
                 {/* Serendipity Multiplier */}
                 <div className="w-full">
                   <div className="serendipity-container">
-                    <div className="text-2xl mr-3">✨</div>
+                    <div className="text-2xl mr-3" aria-hidden="true">✨</div>
                     <input
                       type="text"
                       placeholder="What's exciting you today?"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="serendipity-input"
+                      aria-label="Search events"
                     />
                   </div>
                 </div>
 
                 {/* Filters */}
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Filter className="w-5 h-5 text-lume-mist mr-2" />
+                  <Filter className="w-5 h-5 text-lume-mist mr-2" aria-hidden="true" />
                   {filters.map(filter => (
                     <button
                       key={filter}
                       onClick={() => handleFilterClick(filter)}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 min-h-[44px] ${
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 min-h-[44px] focus-ring ${
                         activeFilter === filter 
                           ? 'gradient-aurora text-white shadow-lg' 
                           : 'bg-lume-ocean/30 text-lume-light hover:bg-lume-ocean/50'
                       }`}
+                      aria-pressed={activeFilter === filter}
                     >
                       {filter}
                     </button>
@@ -311,89 +325,108 @@ export const Schedule: React.FC = () => {
             </div>
 
             {/* Events Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {filteredEvents.map((event, index) => (
-                <div
-                  key={event.id}
-                  className="card-elevated p-6 interactive animate-fade-in-scale"
-                  style={{ animationDelay: `${0.1 * (index % 6)}s` }}
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3 flex-wrap">
-                        <span 
-                          className="px-3 py-1 text-xs font-semibold rounded-full text-white"
-                          style={{ backgroundColor: trackColors[event.track as keyof typeof trackColors] }}
-                        >
-                          {event.track}
-                        </span>
-                        {user && (
-                          <button
-                            onClick={() => toggleSaveEvent(event.id)}
-                            className={`p-2 rounded-full transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center ${
-                              savedEvents.has(event.id) 
-                                ? 'text-lume-warm hover:text-lume-warm/80' 
-                                : 'text-lume-mist hover:text-lume-light'
-                            }`}
+            {loadingError ? (
+              <ErrorMessage 
+                message={loadingError}
+                onRetry={loadEvents}
+              />
+            ) : filteredEvents.length === 0 && events.length === 0 ? (
+              <EmptyState
+                icon={Calendar}
+                title="Your light field is quiet"
+                description="No events are currently available. Check back soon as new sessions are added regularly."
+                action={{
+                  label: 'Refresh Events',
+                  onClick: loadEvents,
+                  variant: 'constellation'
+                }}
+              />
+            ) : filteredEvents.length === 0 ? (
+              <EmptyState
+                icon={Sparkles}
+                title="No matching events found"
+                description="Try adjusting your search or filter criteria to discover more events that align with your interests."
+                action={{
+                  label: 'Clear Filters',
+                  onClick: () => {
+                    setActiveFilter('All');
+                    setSearchQuery('');
+                  },
+                  variant: 'secondary'
+                }}
+              />
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {filteredEvents.map((event, index) => (
+                  <div
+                    key={event.id}
+                    className="card-elevated p-6 interactive animate-fade-in-scale"
+                    style={{ animationDelay: `${0.1 * (index % 6)}s` }}
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-3 flex-wrap">
+                          <span 
+                            className="px-3 py-1 text-xs font-semibold rounded-full text-white"
+                            style={{ backgroundColor: trackColors[event.track as keyof typeof trackColors] }}
                           >
-                            <Star className={`w-5 h-5 ${savedEvents.has(event.id) ? 'fill-current' : ''}`} />
-                          </button>
-                        )}
+                            {event.track}
+                          </span>
+                          {user && (
+                            <button
+                              onClick={() => toggleSaveEvent(event.id)}
+                              className={`p-2 rounded-full transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center focus-ring ${
+                                savedEvents.has(event.id) 
+                                  ? 'text-lume-warm hover:text-lume-warm/80' 
+                                  : 'text-lume-mist hover:text-lume-light'
+                              }`}
+                              aria-label={savedEvents.has(event.id) ? 'Remove from saved events' : 'Save event'}
+                            >
+                              <Star className={`w-5 h-5 ${savedEvents.has(event.id) ? 'fill-current' : ''}`} />
+                            </button>
+                          )}
+                        </div>
+                        <h4 className="text-lg md:text-xl font-display font-semibold text-white mb-3 leading-tight">
+                          {event.title}
+                        </h4>
                       </div>
-                      <h4 className="text-lg md:text-xl font-display font-semibold text-white mb-3 leading-tight">
-                        {event.title}
-                      </h4>
                     </div>
-                  </div>
-                  
-                  <div className="space-y-3 mb-4">
-                    <div className="flex items-center text-lume-light text-sm">
-                      <Clock className="w-4 h-4 mr-3 text-lume-mist flex-shrink-0" />
-                      <span className="font-medium">
-                        {formatDate(event.start_time)} • {formatTime(event.start_time)} - {formatTime(event.end_time)}
-                      </span>
-                    </div>
-                    <div className="flex items-center text-lume-light text-sm">
-                      <MapPin className="w-4 h-4 mr-3 text-lume-mist flex-shrink-0" />
-                      <span>{event.location}</span>
-                    </div>
-                    {event.speakers && event.speakers.length > 0 && (
+                    
+                    <div className="space-y-3 mb-4">
                       <div className="flex items-center text-lume-light text-sm">
-                        <Users className="w-4 h-4 mr-3 text-lume-mist flex-shrink-0" />
-                        <span>{event.speakers.join(', ')}</span>
+                        <Clock className="w-4 h-4 mr-3 text-lume-mist flex-shrink-0" />
+                        <span className="font-medium">
+                          {formatDate(event.start_time)} • {formatTime(event.start_time)} - {formatTime(event.end_time)}
+                        </span>
                       </div>
+                      <div className="flex items-center text-lume-light text-sm">
+                        <MapPin className="w-4 h-4 mr-3 text-lume-mist flex-shrink-0" />
+                        <span>{event.location}</span>
+                      </div>
+                      {event.speakers && event.speakers.length > 0 && (
+                        <div className="flex items-center text-lume-light text-sm">
+                          <Users className="w-4 h-4 mr-3 text-lume-mist flex-shrink-0" />
+                          <span>{event.speakers.join(', ')}</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {event.description && (
+                      <p className="text-lume-light leading-relaxed mb-4 opacity-80 text-sm">
+                        {event.description}
+                      </p>
                     )}
+                    
+                    <div className="flex items-center justify-between gap-4">
+                      <button className="btn-ghost text-lume-glow hover:bg-lume-glow/10 flex-1 min-h-[44px] focus-ring">
+                        View Details
+                      </button>
+                      <button className="btn-secondary flex-1 min-h-[44px] focus-ring">
+                        Add to Calendar
+                      </button>
+                    </div>
                   </div>
-                  
-                  {event.description && (
-                    <p className="text-lume-light leading-relaxed mb-4 opacity-80 text-sm">
-                      {event.description}
-                    </p>
-                  )}
-                  
-                  <div className="flex items-center justify-between gap-4">
-                    <button className="btn-ghost text-lume-glow hover:bg-lume-glow/10 flex-1 min-h-[44px]">
-                      View Details
-                    </button>
-                    <button className="btn-secondary flex-1 min-h-[44px]">
-                      Add to Calendar
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {filteredEvents.length === 0 && (
-              <div className="text-center py-16 animate-fade-in-up">
-                <div className="w-16 h-16 bg-lume-ocean/30 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
-                  <Sparkles className="w-8 h-8 text-lume-mist" />
-                </div>
-                <h3 className="text-xl font-display font-semibold text-white mb-2">
-                  No events found
-                </h3>
-                <p className="text-lume-light opacity-80">
-                  Try adjusting your search or filter criteria
-                </p>
+                ))}
               </div>
             )}
           </div>
