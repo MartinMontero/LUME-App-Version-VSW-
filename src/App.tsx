@@ -6,6 +6,8 @@ import { Networking } from './components/Networking';
 import { Community } from './components/Community';
 import { Approach } from './components/Approach';
 import { AuthModal } from './components/Auth/AuthModal';
+import { FloatingParticles } from './components/FloatingParticles';
+import { LoadingLight } from './components/LoadingLight';
 import { useAuth } from './hooks/useAuth';
 import { useModal } from './hooks/useModal';
 
@@ -23,14 +25,16 @@ function App() {
     return (
       <div className="flex items-center justify-center min-h-screen bg-lume-deep">
         <div className="text-center">
-          <div className="w-16 h-16 gradient-aurora rounded-2xl flex items-center justify-center mx-auto mb-6 animate-pulse">
-            <div className="w-8 h-8 bg-white rounded-lg"></div>
+          <div className="w-16 h-16 gradient-aurora rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <LoadingLight size="md" />
           </div>
-          <h3 className="text-xl font-display font-semibold text-white mb-2">
+          <h3 className="text-xl font-display font-semibold text-white mb-2 animate-fade-in-up stagger-1">
             LUME
           </h3>
-          <p className="text-lume-light opacity-80">Where boundaries dissolve into brilliance...</p>
-          <div className="mt-6 w-48 h-1 bg-lume-ocean rounded-full mx-auto overflow-hidden">
+          <p className="text-lume-light opacity-80 animate-fade-in-up stagger-2">
+            Where boundaries dissolve into brilliance...
+          </p>
+          <div className="mt-6 w-48 h-1 bg-lume-ocean rounded-full mx-auto overflow-hidden animate-fade-in-up stagger-3">
             <div className="h-full gradient-aurora rounded-full animate-pulse"></div>
           </div>
         </div>
@@ -40,16 +44,27 @@ function App() {
 
   return (
     <div className="App">
+      <FloatingParticles />
       <Navigation user={user} onAuthClick={openAuthModal} />
       <main>
-        <Home onAuthClick={openAuthModal} />
-        <Schedule />
-        <Networking />
-        <Community />
-        <Approach />
+        <div className="animate-fade-in-up stagger-1">
+          <Home onAuthClick={openAuthModal} />
+        </div>
+        <div className="animate-fade-in-up stagger-2">
+          <Schedule />
+        </div>
+        <div className="animate-fade-in-up stagger-3">
+          <Networking />
+        </div>
+        <div className="animate-fade-in-up stagger-4">
+          <Community />
+        </div>
+        <div className="animate-fade-in-up stagger-5">
+          <Approach />
+        </div>
       </main>
       
-      <footer className="bg-lume-deep border-t border-lume-ocean/50 text-white py-16 px-6">
+      <footer className="bg-lume-deep border-t border-lume-ocean/50 text-white py-16 px-6 animate-fade-in-up stagger-6">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
             <div className="md:col-span-2">

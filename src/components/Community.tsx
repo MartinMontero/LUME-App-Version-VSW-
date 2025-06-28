@@ -4,6 +4,7 @@ import { Modal } from './ui/Modal';
 import { useModal } from '../hooks/useModal';
 import { useAuth } from '../hooks/useAuth';
 import { getGatherings, createGathering, joinGathering, leaveGathering, subscribeToTable } from '../lib/supabase';
+import { LoadingLight } from './LoadingLight';
 
 interface Gathering {
   id: string;
@@ -136,7 +137,7 @@ export const Community: React.FC = () => {
     <section id="community" className="py-24 px-6 gradient-ocean">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-16 animate-slide-up">
+        <div className="text-center mb-16 animate-fade-in-up">
           <div className="inline-flex items-center px-4 py-2 bg-lume-soft/20 backdrop-blur-sm rounded-full text-lume-soft text-sm font-medium mb-6 border border-lume-soft/20">
             <Coffee className="w-4 h-4 mr-2" />
             Community Hub
@@ -159,7 +160,7 @@ export const Community: React.FC = () => {
             { label: 'Connections Made', value: '450+', color: 'text-lume-warm' },
             { label: 'Success Stories', value: '23', color: 'text-lume-spark' }
           ].map((stat, index) => (
-            <div key={index} className="luminous-node p-6 text-center animate-slide-up" style={{ 
+            <div key={index} className="luminous-node p-6 text-center animate-fade-in-scale" style={{ 
               animationDelay: `${index * 0.1}s`,
               background: 'radial-gradient(circle at center, rgba(30, 58, 95, 0.9), rgba(10, 22, 40, 0.8))'
             }}>
@@ -174,7 +175,7 @@ export const Community: React.FC = () => {
         </div>
 
         {/* Gatherings Board */}
-        <div className="card-elevated p-8 status-live animate-slide-up" style={{ animationDelay: '0.4s' }}>
+        <div className="card-elevated p-8 status-live animate-fade-in-up stagger-4">
           <div className="flex items-center justify-between mb-8">
             <div>
               <h3 className="text-2xl font-display font-semibold text-white mb-2">
@@ -194,17 +195,17 @@ export const Community: React.FC = () => {
           
           {loading ? (
             <div className="text-center py-12">
-              <div className="w-12 h-12 bg-lume-ocean/30 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse backdrop-blur-sm">
-                <Coffee className="w-6 h-6 text-lume-mist" />
+              <div className="w-12 h-12 bg-lume-ocean/30 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+                <LoadingLight size="sm" />
               </div>
-              <p className="text-lume-light opacity-80">Loading gatherings...</p>
+              <p className="text-lume-light opacity-80 animate-fade-in-up">Loading gatherings...</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {gatherings.map((gathering, index) => (
                 <div 
                   key={gathering.id} 
-                  className="luminous-node p-6 animate-scale-in relative"
+                  className="luminous-node p-6 animate-fade-in-scale relative"
                   style={{ 
                     animationDelay: `${index * 0.1}s`,
                     background: 'radial-gradient(circle at center, rgba(30, 58, 95, 0.9), rgba(10, 22, 40, 0.8))'

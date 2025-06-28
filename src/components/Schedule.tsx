@@ -3,6 +3,7 @@ import { Clock, MapPin, Users, Filter, Calendar, Star, Sparkles } from 'lucide-r
 import { useAuth } from '../hooks/useAuth';
 import { getEvents, saveEvent, unsaveEvent, getSavedEvents } from '../lib/supabase';
 import { NaturalRhythms } from './NaturalRhythms';
+import { LoadingLight } from './LoadingLight';
 
 interface Event {
   id: string;
@@ -187,10 +188,10 @@ export const Schedule: React.FC = () => {
       <section id="schedule" className="py-24 px-6 gradient-ocean">
         <div className="max-w-7xl mx-auto">
           <div className="text-center">
-            <div className="w-16 h-16 gradient-aurora rounded-2xl flex items-center justify-center mx-auto mb-6 animate-pulse">
-              <Calendar className="w-8 h-8 text-white" />
+            <div className="w-16 h-16 gradient-aurora rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <LoadingLight size="md" />
             </div>
-            <p className="text-lume-light">Loading events...</p>
+            <p className="text-lume-light animate-fade-in-up">Loading events...</p>
           </div>
         </div>
       </section>
@@ -201,7 +202,7 @@ export const Schedule: React.FC = () => {
     <section id="schedule" className="py-24 px-6 gradient-ocean">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-16 animate-slide-up">
+        <div className="text-center mb-16 animate-fade-in-up">
           <div className="inline-flex items-center px-4 py-2 bg-lume-glow/20 backdrop-blur-sm rounded-full text-lume-glow text-sm font-medium mb-6 border border-lume-glow/20">
             <Calendar className="w-4 h-4 mr-2" />
             Smart Schedule
@@ -221,12 +222,12 @@ export const Schedule: React.FC = () => {
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-6">
             {/* Natural Rhythms */}
-            <div className="animate-slide-up" style={{ animationDelay: '0.1s' }}>
+            <div className="animate-fade-in-left stagger-1">
               <NaturalRhythms />
             </div>
             
             {/* Quick Insights */}
-            <div className="card-elevated p-6 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+            <div className="card-elevated p-6 animate-fade-in-left stagger-2">
               <h3 className="text-lg font-display font-semibold text-white mb-6">
                 Quick Insights
               </h3>
@@ -250,7 +251,7 @@ export const Schedule: React.FC = () => {
           {/* Main Content */}
           <div className="lg:col-span-3 space-y-8">
             {/* Chart */}
-            <div className="card-elevated p-8 animate-slide-up" style={{ animationDelay: '0.3s' }}>
+            <div className="card-elevated p-8 animate-fade-in-right stagger-3">
               <h3 className="text-2xl font-display font-semibold text-white mb-6">
                 Events by Track
               </h3>
@@ -260,7 +261,7 @@ export const Schedule: React.FC = () => {
             </div>
 
             {/* Serendipity Multiplier and Filters */}
-            <div className="card-elevated p-8 animate-slide-up" style={{ animationDelay: '0.4s' }}>
+            <div className="card-elevated p-8 animate-fade-in-right stagger-4">
               <div className="flex flex-col lg:flex-row gap-6 items-center">
                 {/* Serendipity Multiplier */}
                 <div className="flex-1 max-w-md">
@@ -301,7 +302,7 @@ export const Schedule: React.FC = () => {
               {filteredEvents.map((event, index) => (
                 <div
                   key={event.id}
-                  className="card-elevated p-6 interactive animate-slide-up"
+                  className="card-elevated p-6 interactive animate-fade-in-scale"
                   style={{ animationDelay: `${0.1 * (index % 6)}s` }}
                 >
                   <div className="flex items-start justify-between mb-4">
@@ -316,7 +317,7 @@ export const Schedule: React.FC = () => {
                         {user && (
                           <button
                             onClick={() => toggleSaveEvent(event.id)}
-                            className={`p-1 rounded-full transition-colors ${
+                            className={`p-1 rounded-full transition-colors notification-badge ${
                               savedEvents.has(event.id) 
                                 ? 'text-lume-warm hover:text-lume-warm/80' 
                                 : 'text-lume-mist hover:text-lume-light'
@@ -370,7 +371,7 @@ export const Schedule: React.FC = () => {
             </div>
 
             {filteredEvents.length === 0 && (
-              <div className="text-center py-16">
+              <div className="text-center py-16 animate-fade-in-up">
                 <div className="w-16 h-16 bg-lume-ocean/30 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
                   <Sparkles className="w-8 h-8 text-lume-mist" />
                 </div>
