@@ -25,6 +25,13 @@ export async function apiCall<T>(
     if (error) {
       console.error('API Error:', error);
       
+      // Handle Supabase auth errors first (moved to top priority)
+      if (error.code === 'PGRST301' || 
+          error.message?.includes('JWT') || 
+          error.message?.includes('Auth session missing')) {
+        return { data: null, error: 'Authentication required' };
+      }
+      
       // Handle different types of errors
       if (error.message) {
         return { data: null, error: error.message };
@@ -32,11 +39,6 @@ export async function apiCall<T>(
       
       if (typeof error === 'string') {
         return { data: null, error };
-      }
-      
-      // Handle Supabase auth errors
-      if (error.code === 'PGRST301' || error.message?.includes('JWT')) {
-        return { data: null, error: 'Authentication required' };
       }
       
       return { data: null, error: 'An unexpected error occurred' };
