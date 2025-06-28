@@ -12,6 +12,7 @@ export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [scrolled, setScrolled] = useState(false);
+  const [greeting, setGreeting] = useState('');
 
   const menuItems = [
     { id: 'home', label: 'Home' },
@@ -20,6 +21,33 @@ export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => 
     { id: 'community', label: 'Community' },
     { id: 'insights', label: 'Insights' }
   ];
+
+  // Time-based greeting function
+  const getTimeBasedGreeting = () => {
+    const hour = new Date().getHours();
+    
+    if (hour >= 6 && hour < 9) {
+      return 'Morning Light - Ideas emerging';
+    } else if (hour >= 9 && hour < 17) {
+      return 'Bright Hours - Building mode';
+    } else if (hour >= 17 && hour < 20) {
+      return 'Golden Time - Natural connections';
+    } else {
+      return 'Evening Glow - Deep conversations';
+    }
+  };
+
+  useEffect(() => {
+    // Set initial greeting
+    setGreeting(getTimeBasedGreeting());
+    
+    // Update greeting every minute
+    const interval = setInterval(() => {
+      setGreeting(getTimeBasedGreeting());
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -60,17 +88,41 @@ export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => 
 
   return (
     <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-      scrolled ? 'nav-blur shadow-lg' : 'bg-transparent'
-    }`}>
+      scrolled 
+        ? 'backdrop-blur-[10px] shadow-lg border-b border-lume-mist/20' 
+        : 'bg-transparent'
+    }`}
+    style={{
+      background: scrolled 
+        ? 'linear-gradient(180deg, rgba(10, 22, 40, 0.9) 0%, transparent 100%)'
+        : 'transparent'
+    }}>
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-20">
-          {/* Logo */}
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 gradient-aurora rounded-xl flex items-center justify-center shadow-lg">
-              <Zap className="w-6 h-6 text-white" />
+          {/* Logo and Greeting */}
+          <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 gradient-aurora rounded-xl flex items-center justify-center shadow-lg">
+                <Zap className="w-6 h-6 text-white" />
+              </div>
+              <div 
+                className="gradient-text font-light tracking-[0.1em]"
+                style={{
+                  fontSize: '2rem',
+                  fontWeight: 300,
+                  letterSpacing: '0.1em',
+                  textShadow: '0 0 20px rgba(78, 205, 196, 0.3)'
+                }}
+              >
+                LUME
+              </div>
             </div>
-            <div className="font-display text-xl text-white">
-              LUME
+            
+            {/* Time-based Greeting */}
+            <div className="hidden lg:block">
+              <div className="text-sm text-lume-light/80 font-medium">
+                {greeting}
+              </div>
             </div>
           </div>
 
@@ -95,7 +147,7 @@ export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => 
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <div className="flex items-center space-x-3">
-                <div className="flex items-center space-x-2 px-3 py-2 bg-lume-ocean/50 rounded-full backdrop-blur-sm">
+                <div className="flex items-center space-x-2 px-3 py-2 bg-lume-ocean/50 rounded-full backdrop-blur-sm border border-lume-mist/20">
                   <User className="w-4 h-4 text-lume-light" />
                   <span className="text-sm font-medium text-lume-light">
                     {user.user_metadata?.full_name || user.email?.split('@')[0]}
@@ -125,10 +177,17 @@ export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => 
           </button>
         </div>
 
+        {/* Mobile Greeting */}
+        <div className="lg:hidden pb-2">
+          <div className="text-xs text-lume-light/70 font-medium text-center">
+            {greeting}
+          </div>
+        </div>
+
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden py-4 animate-slide-up">
-            <div className="glass rounded-2xl p-4 space-y-2">
+            <div className="glass rounded-2xl p-4 space-y-2 border border-lume-mist/20">
               {menuItems.map(item => (
                 <button
                   key={item.id}
