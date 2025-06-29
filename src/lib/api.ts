@@ -23,14 +23,16 @@ export async function apiCall<T>(
     const { data, error } = await operation();
     
     if (error) {
+      // Normalize error message to string for consistent handling
+      const errorMessageString = error.message || error || 'Unknown error';
+      
       // Log the error message properly instead of the raw error object
-      const errorMessage = error.message || error;
-      console.error('API Error:', errorMessage);
+      console.error('API Error:', errorMessageString);
       
       // Handle Supabase auth errors first (moved to top priority)
       if (error.code === 'PGRST301' || 
-          error.message?.includes('JWT') || 
-          error.message?.includes('Auth session missing')) {
+          errorMessageString.includes('JWT') || 
+          errorMessageString.includes('Auth session missing')) {
         return { data: null, error: 'Authentication required' };
       }
       
