@@ -96,8 +96,8 @@ export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => 
       }}>
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center justify-between h-20">
-            {/* Logo */}
-            <div className="flex items-center">
+            {/* Enhanced Logo with Lightbulb */}
+            <div className="flex items-center space-x-6">
               <button 
                 onClick={() => scrollToSection('home')}
                 className="flex items-center space-x-3 group focus-ring rounded-xl p-2 -m-2"
@@ -118,9 +118,16 @@ export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => 
                   LUME
                 </div>
               </button>
+              
+              {/* Enhanced Greeting */}
+              <div className="hidden lg:block">
+                <div className="text-sm text-lume-light/80 font-medium px-3 py-1 bg-lume-ocean/20 rounded-full border border-lume-mist/10 backdrop-blur-sm">
+                  {greeting}
+                </div>
+              </div>
             </div>
 
-            {/* Desktop Menu */}
+            {/* Enhanced Desktop Menu */}
             <div className="hidden md:flex items-center space-x-2">
               {menuItems.map(item => (
                 <button
@@ -141,7 +148,7 @@ export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => 
               ))}
             </div>
 
-            {/* Auth Section */}
+            {/* Enhanced Auth Section */}
             <div className="hidden md:flex items-center space-x-4">
               {user ? (
                 <div className="flex items-center space-x-3">
@@ -181,7 +188,7 @@ export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => 
               )}
             </div>
 
-            {/* Mobile Menu Button */}
+            {/* Enhanced Mobile Menu Button */}
             <button
               onClick={toggleMenu}
               className="md:hidden p-3 rounded-xl hover:bg-lume-ocean/50 transition-all duration-300 min-w-[48px] min-h-[48px] flex items-center justify-center focus-ring"
@@ -202,10 +209,17 @@ export const Navigation: React.FC<NavigationProps> = ({ user, onAuthClick }) => 
               </div>
             </button>
           </div>
+
+          {/* Mobile Greeting */}
+          <div className="lg:hidden pb-3 px-2">
+            <div className="text-xs text-lume-light/70 font-medium text-center px-3 py-1 bg-lume-ocean/20 rounded-full border border-lume-mist/10 backdrop-blur-sm inline-block">
+              {greeting}
+            </div>
+          </div>
         </div>
       </nav>
 
-      {/* Mobile Menu */}
+      {/* Enhanced Mobile Menu */}
       {isMenuOpen && (
         <div className="mobile-menu-overlay animate-fade-in">
           <div className="w-full max-w-sm space-y-6">
