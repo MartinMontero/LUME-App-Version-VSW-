@@ -85,9 +85,9 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
             <div className="ml-2 w-2 h-2 bg-lume-glow rounded-full animate-pulse"></div>
           </div>
           
-          <h1 className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-display font-bold text-white mb-8 leading-tight">
-            <span className="block">Where diverse minds</span>
-            <span className="block gradient-text bg-clip-text text-transparent bg-gradient-to-r from-lume-glow via-lume-soft to-lume-warm animate-gradient">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-bold text-white mb-8 leading-tight">
+            <span className="block mb-4">Where diverse minds</span>
+            <span className="block bg-gradient-to-r from-lume-glow via-lume-soft to-lume-warm bg-clip-text text-transparent">
               converge into brilliance
             </span>
           </h1>
@@ -100,7 +100,7 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
             <button 
               onClick={handleExploreEvents} 
-              className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-lume-glow to-lume-soft text-lume-deep font-semibold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
+              className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group min-w-[200px]"
               aria-label="Explore all events and sessions"
             >
               <span>Explore Events</span>
@@ -108,7 +108,7 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
             </button>
             <button 
               onClick={handleJoinConstellation} 
-              className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-lume-glow to-lume-warm text-white font-semibold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group relative overflow-hidden"
+              className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-teal-400 to-yellow-400 text-gray-900 font-semibold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group min-w-[200px]"
               aria-label="Join the LUME constellation community"
             >
               <Zap className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
@@ -124,7 +124,7 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
             return (
               <div 
                 key={index} 
-                className="card-elevated p-8 text-center interactive group hover:scale-105"
+                className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-8 text-center hover:bg-white/20 transition-all duration-300 hover:scale-105"
                 style={{ animationDelay: `${0.3 + index * 0.1}s` }}
               >
                 <div className={`w-16 h-16 bg-gradient-to-br ${stat.color} rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:scale-110`}>
@@ -151,7 +151,7 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
             return (
               <div 
                 key={index} 
-                className="card-floating p-8 text-center group hover:scale-105 transition-all duration-300"
+                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 text-center hover:bg-white/10 transition-all duration-300 hover:scale-105"
                 style={{ animationDelay: `${0.6 + index * 0.1}s` }}
               >
                 <div className={`w-14 h-14 bg-gradient-to-br ${feature.color} rounded-xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110`}>
@@ -170,7 +170,7 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
 
         {/* Call to Action */}
         <div className="mt-20 animate-slide-up" style={{ animationDelay: '0.9s' }}>
-          <div className="card-elevated p-8 max-w-2xl mx-auto">
+          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-8 max-w-2xl mx-auto">
             <h2 className="text-2xl font-display font-semibold text-white mb-4">
               Ready to illuminate your startup journey?
             </h2>
@@ -179,7 +179,7 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
             </p>
             <button 
               onClick={handleJoinConstellation}
-              className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-lume-glow to-lume-warm text-white font-semibold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
+              className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-teal-400 to-yellow-400 text-gray-900 font-semibold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
               aria-label="Start your journey with LUME"
             >
               <Sparkles className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
