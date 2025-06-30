@@ -99,9 +99,9 @@ export const getSavedEvents = (userId: string) =>
 
 // Pitches helpers
 export const getPitches = async () => {
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: currentUserData, error: authError } = await getCurrentUser();
   
-  if (!user) {
+  if (authError || !currentUserData?.user) {
     // Return error for unauthenticated users since RLS requires authentication
     return { 
       data: null, 
@@ -160,9 +160,9 @@ export const unlikePitch = (userId: string, pitchId: string) =>
 
 // Gatherings helpers
 export const getGatherings = async () => {
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: currentUserData, error: authError } = await getCurrentUser();
   
-  if (!user) {
+  if (authError || !currentUserData?.user) {
     // Return error for unauthenticated users since RLS requires authentication
     return { 
       data: null, 
@@ -220,9 +220,9 @@ export const leaveGathering = (userId: string, gatheringId: string) =>
 
 // Networking Signals helpers
 export const getNetworkingSignals = async () => {
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: currentUserData, error: authError } = await getCurrentUser();
   
-  if (!user) {
+  if (authError || !currentUserData?.user) {
     // Return error for unauthenticated users since RLS requires authentication
     return { 
       data: null, 
