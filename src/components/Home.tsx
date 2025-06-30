@@ -97,10 +97,10 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
             connect with fellow entrepreneurs, and build the future together.
           </p>
           
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 max-w-md mx-auto">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
             <button 
               onClick={handleExploreEvents} 
-              className="btn-primary text-lg px-8 py-4 w-full sm:w-auto group"
+              className="btn-primary text-lg px-8 py-4 group"
               aria-label="Explore all events and sessions"
             >
               <span>Explore Events</span>
@@ -108,7 +108,7 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
             </button>
             <button 
               onClick={handleJoinConstellation} 
-              className="btn-constellation text-lg px-8 py-4 w-full sm:w-auto group"
+              className="btn-constellation text-lg px-8 py-4 group"
               aria-label="Join the LUME constellation community"
             >
               <Zap className="w-5 h-5 group-hover:scale-110 transition-transform" />
