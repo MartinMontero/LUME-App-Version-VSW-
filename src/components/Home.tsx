@@ -71,9 +71,9 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
         <div className="absolute bottom-20 left-1/2 w-96 h-96 bg-lume-soft/20 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse" style={{ animationDelay: '4s' }}></div>
         
         {/* Additional ambient light effects */}
-        <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-lume-glow rounded-full opacity-60 animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-3/4 right-1/4 w-1 h-1 bg-lume-warm rounded-full opacity-40 animate-pulse" style={{ animationDelay: '3s' }}></div>
-        <div className="absolute bottom-1/4 left-3/4 w-1.5 h-1.5 bg-lume-soft rounded-full opacity-50 animate-pulse" style={{ animationDelay: '5s' }}></div>
+        <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-lume-glow/60 rounded-full opacity-60 animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-3/4 right-1/4 w-1 h-1 bg-lume-warm/60 rounded-full opacity-40 animate-pulse" style={{ animationDelay: '3s' }}></div>
+        <div className="absolute bottom-1/4 left-3/4 w-1.5 h-1.5 bg-lume-soft/60 rounded-full opacity-50 animate-pulse" style={{ animationDelay: '5s' }}></div>
       </div>
 
       <div className="max-w-7xl mx-auto text-center relative z-10">
