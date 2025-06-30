@@ -1,7 +1,7 @@
 // Application constants
 export const APP_CONFIG = {
   name: 'LUME',
-  tagline: 'Where diverse minds converge into brilliance',
+  tagline: 'Where boundaries dissolve into brilliance',
   description: 'Your intelligent companion for Vancouver Startup Week',
 } as const;
 

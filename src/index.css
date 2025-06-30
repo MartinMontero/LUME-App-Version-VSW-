@@ -94,7 +94,7 @@ body {
 }
 
 .btn-primary {
-  @apply btn-base px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold;
+  @apply btn-base px-6 py-3 bg-gradient-to-r from-lume-glow to-lume-soft text-lume-deep font-semibold;
   box-shadow: var(--shadow-soft);
   transition: all var(--transition-normal);
 }
@@ -121,8 +121,8 @@ body {
 }
 
 .btn-constellation {
-  @apply btn-base px-6 py-3 text-gray-900 font-semibold relative overflow-hidden;
-  background: linear-gradient(135deg, #4ecdc4, #ffe66d);
+  @apply btn-base px-6 py-3 text-white font-semibold relative overflow-hidden;
+  background: linear-gradient(135deg, var(--lume-glow), var(--lume-warm));
   box-shadow: var(--shadow-soft);
   transition: all var(--transition-normal);
 }
