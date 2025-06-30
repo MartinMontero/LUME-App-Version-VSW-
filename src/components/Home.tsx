@@ -100,18 +100,18 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
             <button 
               onClick={handleExploreEvents} 
-              className="btn-primary text-lg px-8 py-4 group"
+              className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-lume-deep bg-gradient-to-r from-lume-glow to-lume-soft rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
               aria-label="Explore all events and sessions"
             >
               <span>Explore Events</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </button>
             <button 
               onClick={handleJoinConstellation} 
-              className="btn-constellation text-lg px-8 py-4 group"
+              className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-lume-glow to-lume-warm rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group relative overflow-hidden"
               aria-label="Join the LUME constellation community"
             >
-              <Zap className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <Zap className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
               <span>Join Constellation</span>
             </button>
           </div>
@@ -179,10 +179,10 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
             </p>
             <button 
               onClick={handleJoinConstellation}
-              className="btn-constellation text-lg px-8 py-4 group"
+              className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-lume-glow to-lume-warm rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
               aria-label="Start your journey with LUME"
             >
-              <Sparkles className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <Sparkles className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
               <span>Start Your Journey</span>
             </button>
           </div>
