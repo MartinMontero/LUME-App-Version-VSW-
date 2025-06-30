@@ -86,9 +86,9 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
           </div>
           
           <h1 className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-display font-bold text-white mb-8 leading-tight">
-            <span className="block">Where boundaries</span>
+            <span className="block">Where diverse minds</span>
             <span className="block gradient-text bg-clip-text text-transparent bg-gradient-to-r from-lume-glow via-lume-soft to-lume-warm animate-gradient">
-              dissolve into brilliance
+              converge into brilliance
             </span>
           </h1>
           

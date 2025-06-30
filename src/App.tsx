@@ -58,7 +58,7 @@ function App() {
             LUME
           </h3>
           <p className="text-lume-light opacity-80 animate-fade-in-up stagger-2">
-            Where boundaries dissolve into brilliance...
+            Where diverse minds converge into brilliance...
           </p>
           <div className="mt-6 w-48 h-1 bg-lume-ocean rounded-full mx-auto overflow-hidden animate-fade-in-up stagger-3">
             <div className="h-full gradient-aurora rounded-full animate-pulse"></div>
@@ -129,7 +129,7 @@ function App() {
                   <div className="font-display text-xl">LUME</div>
                 </div>
                 <p className="text-lume-light leading-relaxed mb-6 max-w-md opacity-80">
-                  Where boundaries dissolve into brilliance. Building the future of entrepreneurship, 
+                  Where diverse minds converge into brilliance. Building the future of entrepreneurship, 
                   one meaningful connection at a time. Join Vancouver's most innovative startup community.
                 </p>
                 <div className="flex space-x-4">
@@ -168,7 +168,7 @@ function App() {
             
             <div className="border-t border-lume-ocean/50 pt-8 text-center">
               <p className="text-lume-light opacity-60">
-                &copy; 2025 LUME. Where boundaries dissolve into brilliance.
+                &copy; 2025 LUME. Where diverse minds converge into brilliance.
               </p>
             </div>
           </div>
