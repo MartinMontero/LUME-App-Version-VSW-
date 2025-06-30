@@ -63,7 +63,7 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
   };
 
   return (
-    <section id="home" className="min-h-screen flex flex-col justify-center px-6 pt-32 pb-20 relative overflow-hidden bg-pattern safe-area-top">
+    <section id="home" className="min-h-screen flex flex-col justify-center px-6 pt-24 pb-20 relative overflow-hidden bg-pattern">
       {/* Enhanced Background Elements */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-20 left-10 w-96 h-96 bg-lume-glow/20 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
@@ -79,6 +79,12 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
       <div className="max-w-7xl mx-auto text-center relative z-10">
         {/* Enhanced Hero Content */}
         <div className="mb-20 animate-slide-up">
+          <div className="inline-flex items-center px-6 py-3 bg-lume-ocean/50 backdrop-blur-sm rounded-full text-lume-glow text-sm font-medium mb-8 border border-lume-glow/20 hover:border-lume-glow/40 transition-all duration-300 group">
+            <Sparkles className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+            <span className="font-semibold">Vancouver Startup Week 2025</span>
+            <div className="ml-2 w-2 h-2 bg-lume-glow rounded-full animate-pulse"></div>
+          </div>
+          
           <h1 className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-display font-bold text-white mb-8 leading-tight">
             <span className="block">Where boundaries</span>
             <span className="block gradient-text bg-clip-text text-transparent bg-gradient-to-r from-lume-glow via-lume-soft to-lume-warm animate-gradient">
