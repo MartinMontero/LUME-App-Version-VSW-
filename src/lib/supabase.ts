@@ -52,7 +52,7 @@ export const updateProfile = (userId: string, updates: any) =>
     .single()
   );
 
-// Events helpers with caching
+// Events helpers with caching - Events are publicly accessible
 export const getEvents = async () => {
   const cacheKey = 'events';
   const cached = getCachedData(cacheKey);
@@ -61,17 +61,24 @@ export const getEvents = async () => {
     return { data: cached, error: null };
   }
   
-  const result = await apiCall(() => supabase
-    .from('events')
-    .select('*')
-    .order('start_time', { ascending: true })
-  );
-  
-  if (result.data) {
-    setCachedData(cacheKey, result.data, 600000); // 10 minutes cache
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .order('start_time', { ascending: true });
+    
+    if (error) {
+      return { data: null, error };
+    }
+    
+    if (data) {
+      setCachedData(cacheKey, data, 600000); // 10 minutes cache
+    }
+    
+    return { data, error: null };
+  } catch (error) {
+    return { data: null, error };
   }
-  
-  return result;
 };
 
 export const saveEvent = (userId: string, eventId: string) =>
