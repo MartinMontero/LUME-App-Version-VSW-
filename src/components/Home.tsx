@@ -79,12 +79,6 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
       <div className="max-w-7xl mx-auto text-center relative z-10">
         {/* Enhanced Hero Content */}
         <div className="mb-20 animate-slide-up">
-          <div className="inline-flex items-center px-6 py-3 bg-lume-ocean/50 backdrop-blur-sm rounded-full text-lume-glow text-sm font-medium mb-8 border border-lume-glow/20 hover:border-lume-glow/40 transition-all duration-300 group">
-            <Sparkles className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
-            <span className="font-semibold">Vancouver Startup Week 2025</span>
-            <div className="ml-2 w-2 h-2 bg-lume-glow rounded-full animate-pulse"></div>
-          </div>
-          
           <h1 className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-display font-bold text-white mb-8 leading-tight">
             <span className="block">Where boundaries</span>
             <span className="block gradient-text bg-clip-text text-transparent bg-gradient-to-r from-lume-glow via-lume-soft to-lume-warm animate-gradient">
