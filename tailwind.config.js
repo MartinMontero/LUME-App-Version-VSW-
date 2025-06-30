@@ -5,18 +5,33 @@ export default {
     extend: {
       colors: {
         lume: {
-          deep: '#0a0f1c',
-          ocean: '#1a2332',
-          mist: '#2a3441',
-          light: '#f8fafc',
-          glow: '#3b82f6',
-          soft: '#60a5fa',
-          warm: '#fbbf24',
-          spark: '#f59e0b',
+          deep: '#0a1628',
+          ocean: '#1e3a5f',
+          mist: '#7692b7',
+          light: '#b8d4f0',
+          glow: '#4ecdc4',
+          soft: '#95e1d3',
+          warm: '#ffe66d',
+          spark: '#ff6b6b',
         },
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+      },
+      animation: {
+        'gradient': 'gradient 6s ease infinite',
+      },
+      keyframes: {
+        gradient: {
+          '0%, 100%': {
+            'background-size': '200% 200%',
+            'background-position': 'left center'
+          },
+          '50%': {
+            'background-size': '200% 200%',
+            'background-position': 'right center'
+          },
+        },
       },
     },
   },
