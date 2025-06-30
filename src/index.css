@@ -266,7 +266,7 @@ body {
 /* Focus Ring */
 .focus-ring {
   @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent;
-  focus:ring-color: rgba(78, 205, 196, 0.5);
+  --tw-ring-color: rgba(78, 205, 196, 0.5);
 }
 
 /* Safe Area Support */
