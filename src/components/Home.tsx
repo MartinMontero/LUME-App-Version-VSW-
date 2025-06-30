@@ -100,7 +100,7 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
             <button 
               onClick={handleExploreEvents} 
-              className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-lume-deep bg-gradient-to-r from-lume-glow to-lume-soft rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
+              className="btn-primary text-lg px-8 py-4 group"
               aria-label="Explore all events and sessions"
             >
               <span>Explore Events</span>
@@ -108,7 +108,7 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
             </button>
             <button 
               onClick={handleJoinConstellation} 
-              className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-lume-glow to-lume-warm rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group relative overflow-hidden"
+              className="btn-constellation text-lg px-8 py-4 group"
               aria-label="Join the LUME constellation community"
             >
               <Zap className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
@@ -179,7 +179,7 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
             </p>
             <button 
               onClick={handleJoinConstellation}
-              className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-lume-glow to-lume-warm rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
+              className="btn-constellation text-lg px-8 py-4 group"
               aria-label="Start your journey with LUME"
             >
               <Sparkles className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
