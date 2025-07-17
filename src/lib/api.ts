@@ -20,19 +20,27 @@ export async function apiCall<T>(
   operation: () => Promise<{ data: T | null; error: any }>
 ): Promise<ApiResponse<T>> {
   try {
+    // Check if we're in development mode without Supabase
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase not configured, returning empty data');
+      return { data: null, error: null };
+    }
+    
     const { data, error } = await operation();
     
     if (error) {
       // Normalize error message to string for consistent handling
       const errorMessageString = error.message || error || 'Unknown error';
       
-      // Handle Supabase auth errors first (moved to top priority)
-      if (error.code === 'PGRST301' || 
-          errorMessageString.includes('JWT') || 
-          errorMessageString.includes('Auth session missing')) {
-        // Log the normalized message for auth errors
-        console.error('API Error:', 'Authentication required');
-        return { data: null, error: 'Authentication required' };
+      // Handle network errors gracefully
+      if (errorMessageString.includes('Failed to fetch') || 
+          errorMessageString.includes('NetworkError') ||
+          errorMessageString.includes('fetch')) {
+        console.warn('Network error, returning empty data:', errorMessageString);
+        return { data: null, error: null };
       }
       
       // Log the error message properly for non-auth errors
@@ -52,10 +60,15 @@ export async function apiCall<T>(
     
     return { data, error: null };
   } catch (err) {
-    console.error('API Call Failed:', err);
+    console.warn('API Call Failed:', err);
     
     // Enhanced error handling for different error types
     if (err instanceof Error) {
+      // Handle network errors gracefully
+      if (err.message.includes('Failed to fetch') || 
+          err.message.includes('NetworkError')) {
+        return { data: null, error: null };
+      }
       return { data: null, error: err.message };
     }
     

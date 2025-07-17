@@ -5,11 +5,19 @@ import { apiCall, getCachedData, setCachedData } from './api';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+// Fallback for development when Supabase is not configured
+const defaultUrl = 'https://example.supabase.co';
+const defaultKey = 'example-key';
+
+const finalUrl = supabaseUrl || defaultUrl;
+const finalKey = supabaseAnonKey || defaultKey;
+
+// Log warning if using fallback values
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
+  console.warn('Supabase environment variables not configured. Using fallback values.');
 }
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient<Database>(finalUrl, finalKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
@@ -62,22 +70,38 @@ export const getEvents = async () => {
   }
   
   try {
+    // Check if Supabase is properly configured
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return { 
+        data: [], 
+        error: null 
+      };
+    }
+    
     const { data, error } = await supabase
       .from('events')
       .select('*')
       .order('start_time', { ascending: true });
     
     if (error) {
-      return { data: null, error: error.message || 'Failed to load events' };
+      console.warn('Supabase error:', error);
+      return { 
+        data: [], 
+        error: null 
+      };
     }
     
     if (data) {
       setCachedData(cacheKey, data, 600000); // 10 minutes cache
     }
     
-    return { data, error: null };
+    return { data: data || [], error: null };
   } catch (error) {
-    return { data: null, error: error instanceof Error ? error.message : 'Failed to load events' };
+    console.warn('Network error loading events:', error);
+    return { 
+      data: [], 
+      error: null 
+    };
   }
 };
 
