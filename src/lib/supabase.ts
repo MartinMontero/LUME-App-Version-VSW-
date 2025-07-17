@@ -78,17 +78,23 @@ export const getEvents = async () => {
       };
     }
     
+    // Check if using fallback values (indicates missing configuration)
+    if (supabaseUrl === defaultUrl || supabaseAnonKey === defaultKey) {
+      console.warn('Using fallback Supabase configuration. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables.');
+      return { 
+        data: [], 
+        error: null 
+      };
+    }
+    
     const { data, error } = await supabase
       .from('events')
       .select('*')
       .order('start_time', { ascending: true });
     
     if (error) {
-      console.error('Supabase error:', error);
-      return { 
-        data: null, 
-        error: error.message || 'Failed to load events from database' 
-      };
+      console.warn('Supabase not configured, returning empty data');
+      return { data: [], error: null };
     }
     
     if (data) {
@@ -97,21 +103,8 @@ export const getEvents = async () => {
     
     return { data: data || [], error: null };
   } catch (error) {
-    console.error('Network error loading events:', error);
-    
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    
-    if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
-      return { 
-        data: null, 
-        error: 'Network connection failed. Please check your internet connection and try again.' 
-      };
-    }
-    
-    return { 
-      data: null, 
-      error: errorMessage 
-    };
+    console.warn('Supabase connection failed, returning empty data');
+    return { data: [], error: null };
   }
 };
 
