@@ -73,8 +73,8 @@ export const getEvents = async () => {
     // Check if Supabase is properly configured
     if (!supabaseUrl || !supabaseAnonKey) {
       return { 
-        data: [], 
-        error: null 
+        data: null, 
+        error: 'Supabase configuration missing. Please check environment variables.' 
       };
     }
     
@@ -84,10 +84,10 @@ export const getEvents = async () => {
       .order('start_time', { ascending: true });
     
     if (error) {
-      console.warn('Supabase error:', error);
+      console.error('Supabase error:', error);
       return { 
-        data: [], 
-        error: null 
+        data: null, 
+        error: error.message || 'Failed to load events from database' 
       };
     }
     
@@ -97,10 +97,20 @@ export const getEvents = async () => {
     
     return { data: data || [], error: null };
   } catch (error) {
-    console.warn('Network error loading events:', error);
+    console.error('Network error loading events:', error);
+    
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    
+    if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
+      return { 
+        data: null, 
+        error: 'Network connection failed. Please check your internet connection and try again.' 
+      };
+    }
+    
     return { 
-      data: [], 
-      error: null 
+      data: null, 
+      error: errorMessage 
     };
   }
 };

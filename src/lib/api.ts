@@ -25,8 +25,10 @@ export async function apiCall<T>(
     const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
     
     if (!supabaseUrl || !supabaseAnonKey) {
-      console.warn('Supabase not configured, returning empty data');
-      return { data: null, error: null };
+      return { 
+        data: null, 
+        error: 'Supabase configuration missing. Please check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables.' 
+      };
     }
     
     const { data, error } = await operation();
@@ -39,8 +41,19 @@ export async function apiCall<T>(
       if (errorMessageString.includes('Failed to fetch') || 
           errorMessageString.includes('NetworkError') ||
           errorMessageString.includes('fetch')) {
-        console.warn('Network error, returning empty data:', errorMessageString);
-        return { data: null, error: null };
+        return { 
+          data: null, 
+          error: 'Network connection failed. Please check your internet connection and try again.' 
+        };
+      }
+      
+      // Handle auth session errors
+      if (errorMessageString.includes('Auth session missing') || 
+          errorMessageString.includes('Authentication required')) {
+        return { 
+          data: null, 
+          error: 'Authentication required. Please sign in to access this feature.' 
+        };
       }
       
       // Log the error message properly for non-auth errors
@@ -60,14 +73,17 @@ export async function apiCall<T>(
     
     return { data, error: null };
   } catch (err) {
-    console.warn('API Call Failed:', err);
+    console.error('API Call Failed:', err);
     
     // Enhanced error handling for different error types
     if (err instanceof Error) {
       // Handle network errors gracefully
       if (err.message.includes('Failed to fetch') || 
           err.message.includes('NetworkError')) {
-        return { data: null, error: null };
+        return { 
+          data: null, 
+          error: 'Network connection failed. Please check your internet connection and try again.' 
+        };
       }
       return { data: null, error: err.message };
     }
