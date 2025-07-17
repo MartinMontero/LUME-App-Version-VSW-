@@ -86,7 +86,7 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
           </div>
           
           <h1 className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-display font-bold text-white mb-8 leading-tight">
-            <span className="block">Where boundaries</span>
+            <span className="block mb-4">Where boundaries</span>
             <span className="block gradient-text bg-clip-text text-transparent bg-gradient-to-r from-lume-glow via-lume-soft to-lume-warm animate-gradient">
               dissolve into brilliance
             </span>
@@ -104,14 +104,14 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
               aria-label="Explore all events and sessions"
             >
               <span>Explore Events</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </button>
             <button 
               onClick={handleJoinConstellation} 
               className="btn-constellation text-lg px-8 py-4 w-full sm:w-auto group"
               aria-label="Join the LUME constellation community"
             >
-              <Zap className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <Zap className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
               <span>Join Constellation</span>
             </button>
           </div>
@@ -182,7 +182,7 @@ export const Home: React.FC<HomeProps> = ({ onAuthClick }) => {
               className="btn-constellation text-lg px-8 py-4 group"
               aria-label="Start your journey with LUME"
             >
-              <Sparkles className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <Sparkles className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
               <span>Start Your Journey</span>
             </button>
           </div>
