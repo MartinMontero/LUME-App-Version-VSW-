@@ -43,44 +43,37 @@ export const Community: React.FC = () => {
   const { isOpen: isGatheringModalOpen, openModal: openGatheringModal, closeModal: closeGatheringModal } = useModal();
 
   useEffect(() => {
-    if (user) {
-      loadGatherings();
-      
-      // Subscribe to real-time updates only if user is authenticated
-      const subscription = subscribeToTable('gatherings', (payload) => {
-        if (payload.eventType === 'INSERT') {
-          setGatherings(prev => [payload.new, ...prev]);
-        } else if (payload.eventType === 'UPDATE') {
-          setGatherings(prev => prev.map(gathering => 
-            gathering.id === payload.new.id ? payload.new : gathering
-          ));
-        } else if (payload.eventType === 'DELETE') {
-          setGatherings(prev => prev.filter(gathering => gathering.id !== payload.old.id));
-        }
-      });
+    loadGatherings();
+    
+    // Subscribe to real-time updates
+    const subscription = subscribeToTable('gatherings', (payload) => {
+      if (payload.eventType === 'INSERT') {
+        setGatherings(prev => [payload.new, ...prev]);
+      } else if (payload.eventType === 'UPDATE') {
+        setGatherings(prev => prev.map(gathering => 
+          gathering.id === payload.new.id ? payload.new : gathering
+        ));
+      } else if (payload.eventType === 'DELETE') {
+        setGatherings(prev => prev.filter(gathering => gathering.id !== payload.old.id));
+      }
+    });
 
-      return () => {
-        subscription.unsubscribe();
-      };
-    } else {
-      // User is not authenticated, clear data and set appropriate state
-      setGatherings([]);
-      setLoadingError('Authentication required to view gatherings');
-      setLoading(false);
-    }
-  }, [user]);
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const loadGatherings = async () => {
     try {
       setLoadingError(null);
       const { data, error: fetchError } = await getGatherings();
       if (fetchError) {
-        setLoadingError(fetchError);
+        setLoadingError(typeof fetchError === 'string' ? fetchError : 'Failed to load gatherings');
         return;
       }
       setGatherings(data || []);
     } catch (err: any) {
-      setLoadingError(err.message || 'Failed to load gatherings');
+      setLoadingError(typeof err === 'string' ? err : err.message || 'Failed to load gatherings');
       error('Failed to load gatherings', 'Something dimmed unexpectedly');
     } finally {
       setLoading(false);
@@ -102,7 +95,7 @@ export const Community: React.FC = () => {
       });
       
       if (createError) {
-        error('Failed to create gathering', createError);
+        error('Failed to create gathering', typeof createError === 'string' ? createError : 'Failed to create gathering');
         return;
       }
       
@@ -116,7 +109,7 @@ export const Community: React.FC = () => {
       closeGatheringModal();
       success('Light bridge formed!', 'Your gathering has been created successfully');
     } catch (err: any) {
-      error('Failed to create gathering', err.message);
+      error('Failed to create gathering', typeof err === 'string' ? err : err.message || 'Failed to create gathering');
     }
   };
 
@@ -126,12 +119,12 @@ export const Community: React.FC = () => {
     try {
       const { error: joinError } = await joinGathering(user.id, gatheringId);
       if (joinError) {
-        error('Failed to join gathering', joinError);
+        error('Failed to join gathering', typeof joinError === 'string' ? joinError : 'Failed to join gathering');
         return;
       }
       success('Added to constellation!', 'You\'ve joined the gathering');
     } catch (err: any) {
-      error('Failed to join gathering', err.message);
+      error('Failed to join gathering', typeof err === 'string' ? err : err.message || 'Failed to join gathering');
     }
   };
 

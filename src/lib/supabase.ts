@@ -68,7 +68,7 @@ export const getEvents = async () => {
       .order('start_time', { ascending: true });
     
     if (error) {
-      return { data: null, error };
+      return { data: null, error: error.message || 'Failed to load events' };
     }
     
     if (data) {
@@ -77,7 +77,7 @@ export const getEvents = async () => {
     
     return { data, error: null };
   } catch (error) {
-    return { data: null, error };
+    return { data: null, error: error instanceof Error ? error.message : 'Failed to load events' };
   }
 };
 
@@ -105,19 +105,8 @@ export const getSavedEvents = (userId: string) =>
   );
 
 // Pitches helpers
-export const getPitches = async () => {
-  const { data: currentUserData, error: authError } = await getCurrentUser();
-  
-  if (authError || !currentUserData?.user) {
-    // Return error for unauthenticated users since RLS requires authentication
-    return { 
-      data: null, 
-      error: { message: 'Authentication required to view pitches' } 
-    };
-  }
-
-  // User is authenticated, include profile data
-  return apiCall(() => supabase
+export const getPitches = () =>
+  apiCall(() => supabase
     .from('pitches')
     .select(`
       *,
@@ -128,7 +117,6 @@ export const getPitches = async () => {
     `)
     .order('created_at', { ascending: false })
   );
-};
 
 export const createPitch = (pitchData: any) =>
   apiCall(() => supabase
@@ -166,19 +154,8 @@ export const unlikePitch = (userId: string, pitchId: string) =>
   );
 
 // Gatherings helpers
-export const getGatherings = async () => {
-  const { data: currentUserData, error: authError } = await getCurrentUser();
-  
-  if (authError || !currentUserData?.user) {
-    // Return error for unauthenticated users since RLS requires authentication
-    return { 
-      data: null, 
-      error: { message: 'Authentication required to view gatherings' } 
-    };
-  }
-
-  // User is authenticated, include profile data
-  return apiCall(() => supabase
+export const getGatherings = () =>
+  apiCall(() => supabase
     .from('gatherings')
     .select(`
       *,
@@ -189,7 +166,6 @@ export const getGatherings = async () => {
     `)
     .order('created_at', { ascending: false })
   );
-};
 
 export const createGathering = (gatheringData: any) =>
   apiCall(() => supabase
@@ -226,19 +202,8 @@ export const leaveGathering = (userId: string, gatheringId: string) =>
   );
 
 // Networking Signals helpers
-export const getNetworkingSignals = async () => {
-  const { data: currentUserData, error: authError } = await getCurrentUser();
-  
-  if (authError || !currentUserData?.user) {
-    // Return error for unauthenticated users since RLS requires authentication
-    return { 
-      data: null, 
-      error: { message: 'Authentication required to view networking signals' } 
-    };
-  }
-
-  // User is authenticated, include profile data
-  return apiCall(() => supabase
+export const getNetworkingSignals = () =>
+  apiCall(() => supabase
     .from('networking_signals')
     .select(`
       *,
@@ -251,7 +216,6 @@ export const getNetworkingSignals = async () => {
     .gt('expires_at', new Date().toISOString())
     .order('created_at', { ascending: false })
   );
-};
 
 export const createNetworkingSignal = (signalData: any) =>
   apiCall(() => supabase

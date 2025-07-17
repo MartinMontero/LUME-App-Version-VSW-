@@ -45,46 +45,39 @@ export const Networking: React.FC = () => {
   const { isOpen: isPitchDetailOpen, openModal: openPitchDetail, closeModal: closePitchDetail } = useModal();
 
   useEffect(() => {
-    if (user) {
-      loadPitches();
-      
-      // Subscribe to real-time updates only if user is authenticated
-      const subscription = subscribeToTable('pitches', (payload) => {
-        if (payload.eventType === 'INSERT') {
-          setPitches(prev => [payload.new, ...prev]);
-        } else if (payload.eventType === 'UPDATE') {
-          setPitches(prev => prev.map(pitch => 
-            pitch.id === payload.new.id ? payload.new : pitch
-          ));
-        } else if (payload.eventType === 'DELETE') {
-          setPitches(prev => prev.filter(pitch => pitch.id !== payload.old.id));
-        }
-      });
+    loadPitches();
+    
+    // Subscribe to real-time updates
+    const subscription = subscribeToTable('pitches', (payload) => {
+      if (payload.eventType === 'INSERT') {
+        setPitches(prev => [payload.new, ...prev]);
+      } else if (payload.eventType === 'UPDATE') {
+        setPitches(prev => prev.map(pitch => 
+          pitch.id === payload.new.id ? payload.new : pitch
+        ));
+      } else if (payload.eventType === 'DELETE') {
+        setPitches(prev => prev.filter(pitch => pitch.id !== payload.old.id));
+      }
+    });
 
-      return () => {
-        subscription.unsubscribe();
-      };
-    } else {
-      // User is not authenticated, clear data and set appropriate state
-      setPitches([]);
-      setLoadingError('Authentication required to view pitches');
-      setLoading(false);
-    }
-  }, [user]);
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const loadPitches = async () => {
     try {
       setLoadingError(null);
       const { data, error } = await getPitches();
       if (error) {
-        setLoadingError(error);
+        setLoadingError(typeof error === 'string' ? error : 'Failed to load pitches');
         setPitches([]);
         return;
       }
       setPitches(data || []);
     } catch (error) {
       console.error('Error loading pitches:', error);
-      setLoadingError('Failed to load pitches');
+      setLoadingError(typeof error === 'string' ? error : 'Failed to load pitches');
       setPitches([]);
     } finally {
       setLoading(false);
@@ -205,19 +198,11 @@ export const Networking: React.FC = () => {
     if (loadingError) {
       return (
         <div className="text-center py-12">
-          <div className="w-16 h-16 bg-lume-ocean/30 rounded-full flex items-center justify-center mx-auto mb-6 backdrop-blur-sm">
-            <LogIn className="w-8 h-8 text-lume-glow" />
-          </div>
-          <h3 className="text-xl font-display font-semibold text-white mb-3">
-            Sign In to View Pitches
-          </h3>
-          <p className="text-lume-light opacity-80 mb-6 max-w-md mx-auto">
-            Connect with entrepreneurs and discover exciting startup opportunities. 
-            Authentication is required to access the pitch board.
+          <p className="text-lume-light opacity-80 mb-6">
+            {loadingError}
           </p>
-          <button className="btn-primary">
-            <LogIn className="w-4 h-4" />
-            Sign In to Continue
+          <button onClick={loadPitches} className="btn-primary">
+            Try Again
           </button>
         </div>
       );

@@ -140,12 +140,12 @@ export const Schedule: React.FC = () => {
       setLoadingError(null);
       const { data, error: fetchError } = await getEvents();
       if (fetchError) {
-        setLoadingError(fetchError);
+        setLoadingError(typeof fetchError === 'string' ? fetchError : 'Failed to load events');
         return;
       }
       setEvents(data || []);
     } catch (err: any) {
-      setLoadingError(err.message || 'Failed to load events');
+      setLoadingError(typeof err === 'string' ? err : err.message || 'Failed to load events');
       error('Failed to load events', 'Something dimmed unexpectedly');
     } finally {
       setLoading(false);
@@ -158,12 +158,12 @@ export const Schedule: React.FC = () => {
     try {
       const { data, error: fetchError } = await getSavedEvents(user.id);
       if (fetchError) {
-        error('Failed to load saved events', fetchError);
+        error('Failed to load saved events', typeof fetchError === 'string' ? fetchError : 'Failed to load saved events');
         return;
       }
       setSavedEvents(new Set(data?.map(save => save.event_id) || []));
     } catch (err: any) {
-      error('Failed to load saved events', err.message);
+      error('Failed to load saved events', typeof err === 'string' ? err : err.message || 'Failed to load saved events');
     }
   };
 
