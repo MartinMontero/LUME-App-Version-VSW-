@@ -68,16 +68,35 @@ export const Networking: React.FC = () => {
   const loadPitches = async () => {
     try {
       setLoadingError(null);
+      
+      // Check if Supabase is properly configured
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      if (!supabaseUrl || !supabaseAnonKey || 
+          supabaseUrl === 'https://your-project.supabase.co' || 
+          supabaseAnonKey === 'your-anon-key-here') {
+        console.warn('Supabase not configured, using empty pitches data');
+        setPitches([]);
+        setLoading(false);
+        return;
+      }
+      
       const { data, error } = await getPitches();
       if (error) {
-        setLoadingError(typeof error === 'string' ? error : 'Failed to load pitches');
-        setPitches([]);
+        // Handle network errors gracefully
+        if (error.includes('Failed to fetch') || error.includes('NetworkError')) {
+          console.warn('Network error loading pitches, using empty data');
+          setPitches([]);
+        } else {
+          setLoadingError(typeof error === 'string' ? error : 'Failed to load pitches');
+          setPitches([]);
+        }
         return;
       }
       setPitches(data || []);
     } catch (error) {
-      console.error('Error loading pitches:', error);
-      setLoadingError(typeof error === 'string' ? error : 'Failed to load pitches');
+      console.warn('Error loading pitches, using empty data:', error);
       setPitches([]);
     } finally {
       setLoading(false);
